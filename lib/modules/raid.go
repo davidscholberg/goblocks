@@ -7,7 +7,7 @@ import (
 )
 
 func updateRaidBlock(rb *i3barjson.Block) error {
-	rb.Full_text = "R: ok"
+	rb.FullText = "R: ok"
 	mdstatPath := "/proc/mdstat"
 	stats, err := ioutil.ReadFile(mdstatPath)
 	if err != nil {
@@ -15,7 +15,7 @@ func updateRaidBlock(rb *i3barjson.Block) error {
 	}
 	i := strings.Index(string(stats), "_")
 	if i != -1 {
-		rb.Full_text = "R: degraded"
+		rb.FullText = "R: degraded"
 	}
 	return nil
 }

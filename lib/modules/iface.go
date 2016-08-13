@@ -18,6 +18,6 @@ func updateIfaceBlock(ib *i3barjson.Block) error {
 		return err
 	}
 	r.Close()
-	ib.Full_text = fmt.Sprintf("E: %s", ifaceState)
+	ib.FullText = fmt.Sprintf("E: %s", ifaceState)
 	return nil
 }

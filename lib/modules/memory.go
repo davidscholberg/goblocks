@@ -20,6 +20,6 @@ func updateMemBlock(mb *i3barjson.Block) error {
 		return err
 	}
 	r.Close()
-	mb.Full_text = fmt.Sprintf("M: %.2fG", float64(memAvail)/1048576.0)
+	mb.FullText = fmt.Sprintf("M: %.2fG", float64(memAvail)/1048576.0)
 	return nil
 }

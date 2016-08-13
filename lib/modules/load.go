@@ -17,6 +17,6 @@ func updateLoadBlock(lb *i3barjson.Block) error {
 		return err
 	}
 	r.Close()
-	lb.Full_text = fmt.Sprintf("L: %s", load)
+	lb.FullText = fmt.Sprintf("L: %s", load)
 	return nil
 }

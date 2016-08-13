@@ -6,6 +6,6 @@ import (
 )
 
 func updateTimeBlock(tb *i3barjson.Block) error {
-	tb.Full_text = time.Now().Format("2006-01-02 15:04")
+	tb.FullText = time.Now().Format("2006-01-02 15:04")
 	return nil
 }

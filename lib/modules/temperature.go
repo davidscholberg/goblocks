@@ -35,6 +35,6 @@ func updateTempBlock(tb *i3barjson.Block) error {
 		totalTemp += temp
 		procs++
 	}
-	tb.Full_text = fmt.Sprintf("%.2f°C", float64(totalTemp)/float64(procs*1000))
+	tb.FullText = fmt.Sprintf("%.2f°C", float64(totalTemp)/float64(procs*1000))
 	return nil
 }

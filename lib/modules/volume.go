@@ -24,6 +24,6 @@ func updateVolumeBlock(vb *i3barjson.Block) error {
 	if iEnd == -1 {
 		return errors.New("cannot parse amixer output")
 	}
-	vb.Full_text = fmt.Sprintf("V: %s", outStr[iBegin+1:iEnd])
+	vb.FullText = fmt.Sprintf("V: %s", outStr[iBegin+1:iEnd])
 	return nil
 }

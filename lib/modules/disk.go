@@ -7,7 +7,7 @@ import (
 )
 
 func updateDiskBlock(db *i3barjson.Block) error {
-	db.Full_text = "D: ok"
+	db.FullText = "D: ok"
 	fsList := []string{"/", "/home"}
 	var err error
 	for _, fsPath := range fsList {
@@ -18,7 +18,7 @@ func updateDiskBlock(db *i3barjson.Block) error {
 		}
 		percentFree := float64(stats.Bavail) * 100 / float64(stats.Blocks)
 		if percentFree < 5.0 {
-			db.Full_text = fmt.Sprintf(
+			db.FullText = fmt.Sprintf(
 				"D: %s at %.2f%%",
 				fsPath,
 				100-percentFree,
