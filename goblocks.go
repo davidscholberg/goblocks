@@ -16,29 +16,26 @@ func main() {
 	var SIGRTMIN = syscall.Signal(34)
 
 	var statusLine i3barjson.StatusLine
-	var goblocks []*types.GoBlock
 	var selectCases types.SelectCases
-	modules.RegisterGoBlocks(func(gb []*types.GoBlock) {
-		goblocks = gb
-		for _, goblock := range goblocks {
-			statusLine = append(statusLine, &goblock.Block)
-			update := goblock.Update
-			selectCases.Add(
-				goblock.Ticker.C,
-				func(gb *types.GoBlock) (bool, bool) {
-					update(&gb.Block)
-					return false, false
-				},
-				goblock,
-			)
+	goblocks := modules.GetGoBlocks()
+	for _, goblock := range goblocks {
+		statusLine = append(statusLine, &goblock.Block)
+		update := goblock.Update
+		selectCases.Add(
+			goblock.Ticker.C,
+			func(gb *types.GoBlock) (bool, bool) {
+				update(&gb.Block)
+				return false, false
+			},
+			goblock,
+		)
 
-			// update block so it's ready for first run
-			err := goblock.Update(&goblock.Block)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "%s", err)
-			}
+		// update block so it's ready for first run
+		err := goblock.Update(&goblock.Block)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s", err)
 		}
-	})
+	}
 
 	updateTicker := time.NewTicker(time.Second)
 	selectCases.Add(

@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-func RegisterGoBlocks(r func(gb []*types.GoBlock)) {
-	goblocks := []*types.GoBlock{
+func GetGoBlocks() []*types.GoBlock {
+	return []*types.GoBlock{
 		getRaidBlock(),
 		getDiskBlock(),
 		getLoadBlock(),
@@ -17,7 +17,6 @@ func RegisterGoBlocks(r func(gb []*types.GoBlock)) {
 		getVolumeBlock(),
 		getTimeBlock(),
 	}
-	r(goblocks)
 }
 
 func newGoBlock(b i3barjson.Block, t *time.Ticker, u func(b *i3barjson.Block) error) *types.GoBlock {
