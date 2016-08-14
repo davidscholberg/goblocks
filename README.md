@@ -19,3 +19,4 @@ go get github.com/davidscholberg/goblocks
 * Add configuration support (probably with [viper](https://github.com/spf13/viper)).
 * Add cli arg support (probably with [cobra](https://github.com/spf13/cobra)).
 * Add color support.
+* Add a debug mode that pretty prints the JSON output.
