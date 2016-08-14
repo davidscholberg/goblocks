@@ -61,51 +61,56 @@ func main() {
 	})
 	sigVolChanIndex := len(selectCases) - 1
 
-	i3BarChan, err := i3barjson.Init(os.Stdout, nil)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s", err)
-		return
-	}
-
-	go func() {
-		// send the first statusline
-		i3BarChan <- statusLine
-
-		for {
-			// select on all chans
-			i, _, _ := reflect.Select(selectCases)
-			if i == sigEndChanIndex {
-				break
-			}
-			if i == updateTickerIndex {
-				i3BarChan <- statusLine
-			} else if i == sigVolChanIndex {
-				// TODO: terrible hack, need to reference block by string or var
-				goblocks[6].Update(goblocks[6].Block)
-				i3BarChan <- statusLine
-			} else {
-				err = goblocks[i].Update(goblocks[i].Block)
-				if err != nil {
-					fmt.Fprintf(os.Stderr, "%s", err)
-				}
-			}
-		}
-
-		for _, goblock := range goblocks {
-			goblock.Ticker.Stop()
-		}
-		updateTicker.Stop()
-
-		close(i3BarChan)
-	}()
-
 	h := i3barjson.Header{}
 	h.Version = 1
-	err = i3barjson.Start(h)
+	err := i3barjson.Init(os.Stdout, nil, h)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
 		return
 	}
+
+	// send the first statusline
+	err = i3barjson.Update(statusLine)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		return
+	}
+
+	for {
+		// select on all chans
+		i, _, _ := reflect.Select(selectCases)
+		if i == sigEndChanIndex {
+			break
+		}
+		if i == updateTickerIndex {
+			err = i3barjson.Update(statusLine)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%s", err)
+				break
+			}
+		} else if i == sigVolChanIndex {
+			// TODO: terrible hack, need to reference block by string or var
+			err = goblocks[6].Update(goblocks[6].Block)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%s", err)
+			}
+			err = i3barjson.Update(statusLine)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%s", err)
+				break
+			}
+		} else {
+			err = goblocks[i].Update(goblocks[i].Block)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%s", err)
+			}
+		}
+	}
+
+	for _, goblock := range goblocks {
+		goblock.Ticker.Stop()
+	}
+	updateTicker.Stop()
 
 	fmt.Println("\ndone")
 }
