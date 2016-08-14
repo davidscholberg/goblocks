@@ -3,10 +3,20 @@ package modules
 import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
+	"github.com/davidscholberg/goblocks/lib/types"
 	"os"
+	"time"
 )
 
-func updateIfaceBlock(ib *i3barjson.Block) error {
+func getIfaceBlock() *types.GoBlock {
+	return newGoBlock(
+		i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
+		time.NewTicker(time.Second),
+		updateIfaceBlock,
+	)
+}
+
+func updateIfaceBlock(b *i3barjson.Block) error {
 	var ifaceState string
 	// TODO: make interface name configurable
 	r, err := os.Open("/sys/class/net/enp3s0/operstate")
@@ -18,6 +28,6 @@ func updateIfaceBlock(ib *i3barjson.Block) error {
 		return err
 	}
 	r.Close()
-	ib.FullText = fmt.Sprintf("E: %s", ifaceState)
+	b.FullText = fmt.Sprintf("E: %s", ifaceState)
 	return nil
 }

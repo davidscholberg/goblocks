@@ -3,11 +3,21 @@ package modules
 import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
+	"github.com/davidscholberg/goblocks/lib/types"
 	"syscall"
+	"time"
 )
 
-func updateDiskBlock(db *i3barjson.Block) error {
-	db.FullText = "D: ok"
+func getDiskBlock() *types.GoBlock {
+	return newGoBlock(
+		i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
+		time.NewTicker(time.Second),
+		updateDiskBlock,
+	)
+}
+
+func updateDiskBlock(b *i3barjson.Block) error {
+	b.FullText = "D: ok"
 	fsList := []string{"/", "/home"}
 	var err error
 	for _, fsPath := range fsList {
@@ -18,7 +28,7 @@ func updateDiskBlock(db *i3barjson.Block) error {
 		}
 		percentFree := float64(stats.Bavail) * 100 / float64(stats.Blocks)
 		if percentFree < 5.0 {
-			db.FullText = fmt.Sprintf(
+			b.FullText = fmt.Sprintf(
 				"D: %s at %.2f%%",
 				fsPath,
 				100-percentFree,

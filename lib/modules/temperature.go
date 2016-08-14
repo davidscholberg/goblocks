@@ -3,12 +3,22 @@ package modules
 import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
+	"github.com/davidscholberg/goblocks/lib/types"
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 )
 
-func updateTempBlock(tb *i3barjson.Block) error {
+func getTempBlock() *types.GoBlock {
+	return newGoBlock(
+		i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
+		time.NewTicker(time.Second),
+		updateTempBlock,
+	)
+}
+
+func updateTempBlock(b *i3barjson.Block) error {
 	totalTemp := 0
 	procs := 0
 	sysDirName := "/sys/devices/platform/coretemp.0/hwmon/hwmon1"
@@ -35,6 +45,6 @@ func updateTempBlock(tb *i3barjson.Block) error {
 		totalTemp += temp
 		procs++
 	}
-	tb.FullText = fmt.Sprintf("%.2f°C", float64(totalTemp)/float64(procs*1000))
+	b.FullText = fmt.Sprintf("%.2f°C", float64(totalTemp)/float64(procs*1000))
 	return nil
 }

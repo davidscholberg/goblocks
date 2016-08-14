@@ -3,10 +3,20 @@ package modules
 import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
+	"github.com/davidscholberg/goblocks/lib/types"
 	"os"
+	"time"
 )
 
-func updateMemBlock(mb *i3barjson.Block) error {
+func getMemBlock() *types.GoBlock {
+	return newGoBlock(
+		i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
+		time.NewTicker(time.Second),
+		updateMemBlock,
+	)
+}
+
+func updateMemBlock(b *i3barjson.Block) error {
 	var memAvail, memJunk int64
 	r, err := os.Open("/proc/meminfo")
 	if err != nil {
@@ -20,6 +30,6 @@ func updateMemBlock(mb *i3barjson.Block) error {
 		return err
 	}
 	r.Close()
-	mb.FullText = fmt.Sprintf("M: %.2fG", float64(memAvail)/1048576.0)
+	b.FullText = fmt.Sprintf("M: %.2fG", float64(memAvail)/1048576.0)
 	return nil
 }

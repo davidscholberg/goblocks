@@ -3,10 +3,20 @@ package modules
 import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
+	"github.com/davidscholberg/goblocks/lib/types"
 	"os"
+	"time"
 )
 
-func updateLoadBlock(lb *i3barjson.Block) error {
+func getLoadBlock() *types.GoBlock {
+	return newGoBlock(
+		i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
+		time.NewTicker(time.Second),
+		updateLoadBlock,
+	)
+}
+
+func updateLoadBlock(b *i3barjson.Block) error {
 	var load string
 	r, err := os.Open("/proc/loadavg")
 	if err != nil {
@@ -17,6 +27,6 @@ func updateLoadBlock(lb *i3barjson.Block) error {
 		return err
 	}
 	r.Close()
-	lb.FullText = fmt.Sprintf("L: %s", load)
+	b.FullText = fmt.Sprintf("L: %s", load)
 	return nil
 }

@@ -17,18 +17,23 @@ func main() {
 
 	var statusLine i3barjson.StatusLine
 	var goblocks []*types.GoBlock
-	var selectCases []reflect.SelectCase
+	var selectCases types.SelectCases
 	modules.RegisterGoBlocks(func(gb []*types.GoBlock) {
 		goblocks = gb
 		for _, goblock := range goblocks {
-			statusLine = append(statusLine, goblock.Block)
-			selectCases = append(selectCases, reflect.SelectCase{
-				Dir:  reflect.SelectRecv,
-				Chan: reflect.ValueOf(goblock.Ticker.C),
-			})
+			statusLine = append(statusLine, &goblock.Block)
+			update := goblock.Update
+			selectCases.Add(
+				goblock.Ticker.C,
+				func(gb *types.GoBlock) (bool, bool) {
+					update(&gb.Block)
+					return false, false
+				},
+				goblock,
+			)
 
 			// update block so it's ready for first run
-			err := goblock.Update(goblock.Block)
+			err := goblock.Update(&goblock.Block)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%s", err)
 			}
@@ -36,30 +41,34 @@ func main() {
 	})
 
 	updateTicker := time.NewTicker(time.Second)
-
-	selectCases = append(selectCases, reflect.SelectCase{
-		Dir:  reflect.SelectRecv,
-		Chan: reflect.ValueOf(updateTicker.C),
-	})
-	updateTickerIndex := len(selectCases) - 1
+	selectCases.Add(
+		updateTicker.C,
+		func(gb *types.GoBlock) (bool, bool) {
+			return true, false
+		},
+		nil,
+	)
 
 	sigEndChan := make(chan os.Signal, 1)
 	signal.Notify(sigEndChan, syscall.SIGINT, syscall.SIGTERM)
-
-	selectCases = append(selectCases, reflect.SelectCase{
-		Dir:  reflect.SelectRecv,
-		Chan: reflect.ValueOf(sigEndChan),
-	})
-	sigEndChanIndex := len(selectCases) - 1
+	selectCases.Add(
+		sigEndChan,
+		func(gb *types.GoBlock) (bool, bool) {
+			return false, true
+		},
+		nil,
+	)
 
 	sigVolChan := make(chan os.Signal, 1)
 	signal.Notify(sigVolChan, SIGRTMIN+8)
-
-	selectCases = append(selectCases, reflect.SelectCase{
-		Dir:  reflect.SelectRecv,
-		Chan: reflect.ValueOf(sigVolChan),
-	})
-	sigVolChanIndex := len(selectCases) - 1
+	// TODO: fix so that we can add the proper block pointer or update function here
+	selectCases.Add(
+		sigVolChan,
+		func(gb *types.GoBlock) (bool, bool) {
+			return true, false
+		},
+		nil,
+	)
 
 	h := i3barjson.Header{Version: 1}
 	err := i3barjson.Init(os.Stdout, nil, h)
@@ -77,31 +86,16 @@ func main() {
 
 	for {
 		// select on all chans
-		i, _, _ := reflect.Select(selectCases)
-		if i == sigEndChanIndex {
+		i, _, _ := reflect.Select(selectCases.Cases)
+		refresh, exit := selectCases.Actions[i](selectCases.Blocks[i])
+		if exit {
 			break
 		}
-		if i == updateTickerIndex {
+		if refresh {
 			err = i3barjson.Update(statusLine)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%s", err)
 				break
-			}
-		} else if i == sigVolChanIndex {
-			// TODO: terrible hack, need to reference block by string or var
-			err = goblocks[6].Update(goblocks[6].Block)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "%s", err)
-			}
-			err = i3barjson.Update(statusLine)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "%s", err)
-				break
-			}
-		} else {
-			err = goblocks[i].Update(goblocks[i].Block)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "%s", err)
 			}
 		}
 	}

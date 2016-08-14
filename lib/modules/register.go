@@ -8,46 +8,18 @@ import (
 
 func RegisterGoBlocks(r func(gb []*types.GoBlock)) {
 	goblocks := []*types.GoBlock{
-		&types.GoBlock{
-			&i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-			time.NewTicker(time.Second),
-			updateRaidBlock,
-		},
-		&types.GoBlock{
-			&i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-			time.NewTicker(time.Second),
-			updateDiskBlock,
-		},
-		&types.GoBlock{
-			&i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-			time.NewTicker(time.Second),
-			updateLoadBlock,
-		},
-		&types.GoBlock{
-			&i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-			time.NewTicker(time.Second),
-			updateMemBlock,
-		},
-		&types.GoBlock{
-			&i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-			time.NewTicker(time.Second),
-			updateTempBlock,
-		},
-		&types.GoBlock{
-			&i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-			time.NewTicker(time.Second),
-			updateIfaceBlock,
-		},
-		&types.GoBlock{
-			&i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-			time.NewTicker(time.Second * 60),
-			updateVolumeBlock,
-		},
-		&types.GoBlock{
-			&i3barjson.Block{},
-			time.NewTicker(time.Second),
-			updateTimeBlock,
-		},
+		getRaidBlock(),
+		getDiskBlock(),
+		getLoadBlock(),
+		getMemBlock(),
+		getTempBlock(),
+		getIfaceBlock(),
+		getVolumeBlock(),
+		getTimeBlock(),
 	}
 	r(goblocks)
+}
+
+func newGoBlock(b i3barjson.Block, t *time.Ticker, u func(b *i3barjson.Block) error) *types.GoBlock {
+	return &types.GoBlock{b, t, u}
 }

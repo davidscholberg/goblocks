@@ -6,7 +6,7 @@ import (
 )
 
 type GoBlock struct {
-	Block  *i3barjson.Block
+	Block  i3barjson.Block
 	Ticker *time.Ticker
 	Update func(b *i3barjson.Block) error
 }
