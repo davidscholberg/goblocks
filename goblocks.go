@@ -101,7 +101,7 @@ func main() {
 
 	h := i3barjson.Header{}
 	h.Version = 1
-	err = i3barjson.Start(&h)
+	err = i3barjson.Start(h)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
 		return
