@@ -15,15 +15,6 @@ import (
 func main() {
 	var SIGRTMIN = syscall.Signal(34)
 
-	q := make(chan bool)
-	h := i3barjson.Header{}
-	h.Version = 1
-	i3BarChan, err := i3barjson.Init(&h, os.Stdout, nil, q)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s", err)
-		return
-	}
-
 	var statusLine i3barjson.StatusLine
 	var goblocks []*types.GoBlock
 	var selectCases []reflect.SelectCase
@@ -37,7 +28,7 @@ func main() {
 			})
 
 			// update block so it's ready for first run
-			err = goblock.Update(goblock.Block)
+			err := goblock.Update(goblock.Block)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%s", err)
 			}
@@ -70,37 +61,51 @@ func main() {
 	})
 	sigVolChanIndex := len(selectCases) - 1
 
-	// send the first statusline
-	i3BarChan <- statusLine
+	i3BarChan, err := i3barjson.Init(os.Stdout, nil)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		return
+	}
 
-UpdateLoop:
-	for {
-		// select on all chans
-		i, _, _ := reflect.Select(selectCases)
-		if i == sigEndChanIndex {
-			break UpdateLoop
-		}
-		if i == updateTickerIndex {
-			i3BarChan <- statusLine
-		} else if i == sigVolChanIndex {
-			// TODO: terrible hack, need to reference blocks by string or var
-			goblocks[6].Update(goblocks[6].Block)
-			i3BarChan <- statusLine
-		} else {
-			err = goblocks[i].Update(goblocks[i].Block)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "%s", err)
+	go func() {
+		// send the first statusline
+		i3BarChan <- statusLine
+
+		for {
+			// select on all chans
+			i, _, _ := reflect.Select(selectCases)
+			if i == sigEndChanIndex {
+				break
+			}
+			if i == updateTickerIndex {
+				i3BarChan <- statusLine
+			} else if i == sigVolChanIndex {
+				// TODO: terrible hack, need to reference block by string or var
+				goblocks[6].Update(goblocks[6].Block)
+				i3BarChan <- statusLine
+			} else {
+				err = goblocks[i].Update(goblocks[i].Block)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "%s", err)
+				}
 			}
 		}
+
+		for _, goblock := range goblocks {
+			goblock.Ticker.Stop()
+		}
+		updateTicker.Stop()
+
+		close(i3BarChan)
+	}()
+
+	h := i3barjson.Header{}
+	h.Version = 1
+	err = i3barjson.Start(&h)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		return
 	}
 
-	for _, goblock := range goblocks {
-		goblock.Ticker.Stop()
-	}
-	updateTicker.Stop()
-
-	close(i3BarChan)
-
-	<-q
 	fmt.Println("\ndone")
 }
