@@ -14,7 +14,6 @@ func getTimeBlock() *types.GoBlock {
 	)
 }
 
-func updateTimeBlock(b *i3barjson.Block) error {
+func updateTimeBlock(b *i3barjson.Block) {
 	b.FullText = time.Now().Format("2006-01-02 15:04")
-	return nil
 }

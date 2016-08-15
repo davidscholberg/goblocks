@@ -21,10 +21,7 @@ func main() {
 		statusLine = append(statusLine, &goblock.Block)
 
 		// update block so it's ready for first run
-		err := goblock.Update(&goblock.Block)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s", err)
-		}
+		goblock.Update(&goblock.Block)
 	}
 
 	var selectCases types.SelectCases

@@ -18,14 +18,15 @@ func getTempBlock() *types.GoBlock {
 	)
 }
 
-func updateTempBlock(b *i3barjson.Block) error {
+func updateTempBlock(b *i3barjson.Block) {
 	totalTemp := 0
 	procs := 0
 	sysDirName := "/sys/devices/platform/coretemp.0/hwmon/hwmon1"
 	sysFileNameFmt := fmt.Sprintf("%s/%%s", sysDirName)
 	sysFiles, err := ioutil.ReadDir(sysDirName)
 	if err != nil {
-		return err
+		b.FullText = err.Error()
+		return
 	}
 	for _, sysFile := range sysFiles {
 		sysFileName := sysFile.Name()
@@ -34,17 +35,18 @@ func updateTempBlock(b *i3barjson.Block) error {
 		}
 		r, err := os.Open(fmt.Sprintf(sysFileNameFmt, sysFileName))
 		if err != nil {
-			return err
+			b.FullText = err.Error()
+			return
 		}
 		var temp int
 		_, err = fmt.Fscanf(r, "%d", &temp)
 		if err != nil {
-			return err
+			b.FullText = err.Error()
+			return
 		}
 		r.Close()
 		totalTemp += temp
 		procs++
 	}
 	b.FullText = fmt.Sprintf("%.2f°C", float64(totalTemp)/float64(procs*1000))
-	return nil
 }

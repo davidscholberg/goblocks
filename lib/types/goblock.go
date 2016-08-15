@@ -8,5 +8,5 @@ import (
 type GoBlock struct {
 	Block  i3barjson.Block
 	Ticker *time.Ticker
-	Update func(b *i3barjson.Block) error
+	Update func(b *i3barjson.Block)
 }

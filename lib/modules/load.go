@@ -16,17 +16,19 @@ func getLoadBlock() *types.GoBlock {
 	)
 }
 
-func updateLoadBlock(b *i3barjson.Block) error {
+func updateLoadBlock(b *i3barjson.Block) {
 	var load string
+	fullTextFmt := "L: %s"
 	r, err := os.Open("/proc/loadavg")
 	if err != nil {
-		return err
+		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
+		return
 	}
 	_, err = fmt.Fscanf(r, "%s ", &load)
 	if err != nil {
-		return err
+		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
+		return
 	}
 	r.Close()
-	b.FullText = fmt.Sprintf("L: %s", load)
-	return nil
+	b.FullText = fmt.Sprintf(fullTextFmt, load)
 }

@@ -1,7 +1,6 @@
 package modules
 
 import (
-	"errors"
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
 	"github.com/davidscholberg/goblocks/lib/types"
@@ -18,24 +17,27 @@ func getVolumeBlock() *types.GoBlock {
 	)
 }
 
-func updateVolumeBlock(b *i3barjson.Block) error {
+func updateVolumeBlock(b *i3barjson.Block) {
+	fullTextFmt := "V: %s"
 	amixerCmd := "amixer"
 	amixerArgs := []string{"-D", "default", "get", "Master"}
 	out, err := exec.Command(amixerCmd, amixerArgs...).Output()
 	if err != nil {
-		return err
+		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
+		return
 	}
 	outStr := string(out)
 	iBegin := strings.Index(outStr, "[")
 	if iBegin == -1 {
-		return errors.New("cannot parse amixer output")
+		b.FullText = fmt.Sprintf(fullTextFmt, "cannot parse amixer output")
+		return
 	}
 	iEnd := strings.Index(outStr, "]")
 	if iEnd == -1 {
-		return errors.New("cannot parse amixer output")
+		b.FullText = fmt.Sprintf(fullTextFmt, "cannot parse amixer output")
+		return
 	}
-	b.FullText = fmt.Sprintf("V: %s", outStr[iBegin+1:iEnd])
-	return nil
+	b.FullText = fmt.Sprintf(fullTextFmt, outStr[iBegin+1:iEnd])
 }
 
 func SelectActionUpdateVolumeBlock(b *types.GoBlock) (bool, bool) {

@@ -16,25 +16,29 @@ func getDiskBlock() *types.GoBlock {
 	)
 }
 
-func updateDiskBlock(b *i3barjson.Block) error {
-	b.FullText = "D: ok"
+func updateDiskBlock(b *i3barjson.Block) {
+	fullTextFmt := "D: %s"
 	fsList := []string{"/", "/home"}
 	var err error
 	for _, fsPath := range fsList {
 		stats := syscall.Statfs_t{}
 		err = syscall.Statfs(fsPath, &stats)
 		if err != nil {
-			return err
+			b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
+			return
 		}
 		percentFree := float64(stats.Bavail) * 100 / float64(stats.Blocks)
 		if percentFree < 5.0 {
 			b.FullText = fmt.Sprintf(
-				"D: %s at %.2f%%",
-				fsPath,
-				100-percentFree,
+				fullTextFmt,
+				fmt.Sprintf(
+					"%s at %.2f%%",
+					fsPath,
+					100-percentFree,
+				),
 			)
-			return nil
+			return
 		}
 	}
-	return nil
+	b.FullText = fmt.Sprintf(fullTextFmt, "ok")
 }

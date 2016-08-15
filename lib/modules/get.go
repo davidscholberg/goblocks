@@ -19,6 +19,6 @@ func GetGoBlocks() []*types.GoBlock {
 	}
 }
 
-func newGoBlock(b i3barjson.Block, t *time.Ticker, u func(b *i3barjson.Block) error) *types.GoBlock {
+func newGoBlock(b i3barjson.Block, t *time.Ticker, u func(b *i3barjson.Block)) *types.GoBlock {
 	return &types.GoBlock{b, t, u}
 }

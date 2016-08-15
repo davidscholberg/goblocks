@@ -16,18 +16,20 @@ func getIfaceBlock() *types.GoBlock {
 	)
 }
 
-func updateIfaceBlock(b *i3barjson.Block) error {
-	var ifaceState string
+func updateIfaceBlock(b *i3barjson.Block) {
+	var statusStr string
+	fullTextFmt := "E: %s"
 	// TODO: make interface name configurable
 	r, err := os.Open("/sys/class/net/enp3s0/operstate")
 	if err != nil {
-		return err
+		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
+		return
 	}
-	_, err = fmt.Fscanf(r, "%s", &ifaceState)
+	_, err = fmt.Fscanf(r, "%s", &statusStr)
 	if err != nil {
-		return err
+		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
+		return
 	}
 	r.Close()
-	b.FullText = fmt.Sprintf("E: %s", ifaceState)
-	return nil
+	b.FullText = fmt.Sprintf(fullTextFmt, statusStr)
 }

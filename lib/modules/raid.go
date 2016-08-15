@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
 	"github.com/davidscholberg/goblocks/lib/types"
 	"io/ioutil"
@@ -16,16 +17,18 @@ func getRaidBlock() *types.GoBlock {
 	)
 }
 
-func updateRaidBlock(b *i3barjson.Block) error {
-	b.FullText = "R: ok"
+func updateRaidBlock(b *i3barjson.Block) {
+	fullTextFmt := "R: %s"
 	mdstatPath := "/proc/mdstat"
 	stats, err := ioutil.ReadFile(mdstatPath)
 	if err != nil {
-		return err
+		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
+		return
 	}
 	i := strings.Index(string(stats), "_")
 	if i != -1 {
-		b.FullText = "R: degraded"
+		b.FullText = fmt.Sprintf(fullTextFmt, "degraded")
+		return
 	}
-	return nil
+	b.FullText = fmt.Sprintf(fullTextFmt, "ok")
 }

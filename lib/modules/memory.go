@@ -16,20 +16,23 @@ func getMemBlock() *types.GoBlock {
 	)
 }
 
-func updateMemBlock(b *i3barjson.Block) error {
+func updateMemBlock(b *i3barjson.Block) {
 	var memAvail, memJunk int64
+	fullTextFmt := "M: %s"
 	r, err := os.Open("/proc/meminfo")
 	if err != nil {
-		return err
+		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
+		return
 	}
 	_, err = fmt.Fscanf(
 		r,
 		"MemTotal: %d kB\nMemFree: %d kB\nMemAvailable: %d ",
 		&memJunk, &memJunk, &memAvail)
 	if err != nil {
-		return err
+		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
+		return
 	}
 	r.Close()
-	b.FullText = fmt.Sprintf("M: %.2fG", float64(memAvail)/1048576.0)
-	return nil
+	statusStr := fmt.Sprintf("%.2fG", float64(memAvail)/1048576.0)
+	b.FullText = fmt.Sprintf(fullTextFmt, statusStr)
 }
