@@ -17,7 +17,6 @@ func main() {
 
 	var statusLine i3barjson.StatusLine
 	goblocks := modules.GetGoBlocks()
-	selectCases := modules.GetBlockSelectCases(goblocks)
 	for _, goblock := range goblocks {
 		statusLine = append(statusLine, &goblock.Block)
 
@@ -28,34 +27,29 @@ func main() {
 		}
 	}
 
+	var selectCases types.SelectCases
+	selectCases.AddBlockSelectCases(goblocks)
+
 	updateTicker := time.NewTicker(time.Second)
-	selectCases.Add(
+	selectCases.AddChanSelectCase(
 		updateTicker.C,
-		func(gb *types.GoBlock) (bool, bool) {
-			return true, false
-		},
-		nil,
+		types.SelectActionRefresh,
 	)
 
 	sigEndChan := make(chan os.Signal, 1)
 	signal.Notify(sigEndChan, syscall.SIGINT, syscall.SIGTERM)
-	selectCases.Add(
+	selectCases.AddChanSelectCase(
 		sigEndChan,
-		func(gb *types.GoBlock) (bool, bool) {
-			return false, true
-		},
-		nil,
+		types.SelectActionExit,
 	)
 
 	sigVolChan := make(chan os.Signal, 1)
 	signal.Notify(sigVolChan, SIGRTMIN+8)
-	// TODO: fix so that we can add the proper block pointer or update function here
 	selectCases.Add(
 		sigVolChan,
-		func(gb *types.GoBlock) (bool, bool) {
-			return true, false
-		},
-		nil,
+		modules.SelectActionUpdateVolumeBlock,
+		// TODO: don't hardcode this!!!
+		goblocks[6],
 	)
 
 	h := i3barjson.Header{Version: 1}

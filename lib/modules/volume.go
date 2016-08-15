@@ -37,3 +37,9 @@ func updateVolumeBlock(b *i3barjson.Block) error {
 	b.FullText = fmt.Sprintf("V: %s", outStr[iBegin+1:iEnd])
 	return nil
 }
+
+func SelectActionUpdateVolumeBlock(b *types.GoBlock) (bool, bool) {
+	// TODO: fix error handling
+	updateVolumeBlock(&b.Block)
+	return types.SelectActionRefresh(b)
+}
