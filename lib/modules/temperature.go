@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+var sysDirName string
+
 func getTempBlock() *types.GoBlock {
 	return newGoBlock(
 		i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
@@ -21,7 +23,6 @@ func getTempBlock() *types.GoBlock {
 func updateTempBlock(b *i3barjson.Block) {
 	totalTemp := 0
 	procs := 0
-	sysDirName := "/sys/devices/platform/coretemp.0/hwmon/hwmon1"
 	sysFileNameFmt := fmt.Sprintf("%s/%%s", sysDirName)
 	sysFiles, err := ioutil.ReadDir(sysDirName)
 	if err != nil {

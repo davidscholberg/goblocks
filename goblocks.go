@@ -5,6 +5,7 @@ import (
 	"github.com/davidscholberg/go-i3barjson"
 	"github.com/davidscholberg/goblocks/lib/modules"
 	"github.com/davidscholberg/goblocks/lib/types"
+	"github.com/spf13/viper"
 	"os"
 	"os/signal"
 	"reflect"
@@ -13,6 +14,24 @@ import (
 )
 
 func main() {
+	// TODO: set up default values
+	viper.SetConfigName("goblocks")
+	viper.AddConfigPath("$HOME/.config/goblocks")
+	err := viper.ReadInConfig()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		return
+	}
+
+	var cfg modules.Config
+	err = viper.Unmarshal(&cfg)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		return
+	}
+
+	modules.Configure(cfg)
+
 	var SIGRTMIN = syscall.Signal(34)
 
 	var statusLine i3barjson.StatusLine
@@ -50,7 +69,7 @@ func main() {
 	)
 
 	h := i3barjson.Header{Version: 1}
-	err := i3barjson.Init(os.Stdout, nil, h)
+	err = i3barjson.Init(os.Stdout, nil, h)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
 		return

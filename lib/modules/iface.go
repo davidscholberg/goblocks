@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+var ifaceName string
+
 func getIfaceBlock() *types.GoBlock {
 	return newGoBlock(
 		i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
@@ -20,7 +22,8 @@ func updateIfaceBlock(b *i3barjson.Block) {
 	var statusStr string
 	fullTextFmt := "E: %s"
 	// TODO: make interface name configurable
-	r, err := os.Open("/sys/class/net/enp3s0/operstate")
+	sysFilePath := fmt.Sprintf("/sys/class/net/%s/operstate", ifaceName)
+	r, err := os.Open(sysFilePath)
 	if err != nil {
 		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
 		return
