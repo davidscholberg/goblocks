@@ -3,20 +3,27 @@ package modules
 import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
-	"github.com/davidscholberg/goblocks/lib/types"
 	"syscall"
-	"time"
 )
 
-func getDiskBlock() *types.GoBlock {
-	return newGoBlock(
-		i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-		time.NewTicker(time.Second),
-		updateDiskBlock,
-	)
+type Disk struct {
+	BlockIndex     int `mapstructure:"block_index"`
+	UpdateInterval int `mapstructure:"update_interval"`
 }
 
-func updateDiskBlock(b *i3barjson.Block) {
+func (c Disk) GetBlockIndex() int {
+	return c.BlockIndex
+}
+
+func (c Disk) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
+	return updateDiskBlock
+}
+
+func (c Disk) GetUpdateInterval() int {
+	return c.UpdateInterval
+}
+
+func updateDiskBlock(b *i3barjson.Block, c BlockConfig) {
 	fullTextFmt := "D: %s"
 	fsList := []string{"/", "/home"}
 	var err error

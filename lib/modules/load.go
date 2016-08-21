@@ -3,20 +3,27 @@ package modules
 import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
-	"github.com/davidscholberg/goblocks/lib/types"
 	"os"
-	"time"
 )
 
-func getLoadBlock() *types.GoBlock {
-	return newGoBlock(
-		i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-		time.NewTicker(time.Second),
-		updateLoadBlock,
-	)
+type Load struct {
+	BlockIndex     int `mapstructure:"block_index"`
+	UpdateInterval int `mapstructure:"update_interval"`
 }
 
-func updateLoadBlock(b *i3barjson.Block) {
+func (c Load) GetBlockIndex() int {
+	return c.BlockIndex
+}
+
+func (c Load) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
+	return updateLoadBlock
+}
+
+func (c Load) GetUpdateInterval() int {
+	return c.UpdateInterval
+}
+
+func updateLoadBlock(b *i3barjson.Block, c BlockConfig) {
 	var load string
 	fullTextFmt := "L: %s"
 	r, err := os.Open("/proc/loadavg")

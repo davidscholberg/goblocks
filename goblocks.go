@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
 	"github.com/davidscholberg/goblocks/lib/modules"
-	"github.com/davidscholberg/goblocks/lib/types"
 	"github.com/spf13/viper"
 	"os"
 	"os/signal"
@@ -30,33 +29,35 @@ func main() {
 		return
 	}
 
-	modules.Configure(cfg)
-
 	var SIGRTMIN = syscall.Signal(34)
 
 	var statusLine i3barjson.StatusLine
-	goblocks := modules.GetGoBlocks()
+	goblocks, err := modules.GetGoBlocks(cfg)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		return
+	}
 	for _, goblock := range goblocks {
 		statusLine = append(statusLine, &goblock.Block)
 
 		// update block so it's ready for first run
-		goblock.Update(&goblock.Block)
+		goblock.Update(&goblock.Block, goblock.Config)
 	}
 
-	var selectCases types.SelectCases
+	var selectCases modules.SelectCases
 	selectCases.AddBlockSelectCases(goblocks)
 
 	updateTicker := time.NewTicker(time.Second)
 	selectCases.AddChanSelectCase(
 		updateTicker.C,
-		types.SelectActionRefresh,
+		modules.SelectActionRefresh,
 	)
 
 	sigEndChan := make(chan os.Signal, 1)
 	signal.Notify(sigEndChan, syscall.SIGINT, syscall.SIGTERM)
 	selectCases.AddChanSelectCase(
 		sigEndChan,
-		types.SelectActionExit,
+		modules.SelectActionExit,
 	)
 
 	sigVolChan := make(chan os.Signal, 1)

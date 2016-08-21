@@ -3,21 +3,28 @@ package modules
 import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
-	"github.com/davidscholberg/goblocks/lib/types"
 	"io/ioutil"
 	"strings"
-	"time"
 )
 
-func getRaidBlock() *types.GoBlock {
-	return newGoBlock(
-		i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-		time.NewTicker(time.Second),
-		updateRaidBlock,
-	)
+type Raid struct {
+	BlockIndex     int `mapstructure:"block_index"`
+	UpdateInterval int `mapstructure:"update_interval"`
 }
 
-func updateRaidBlock(b *i3barjson.Block) {
+func (c Raid) GetBlockIndex() int {
+	return c.BlockIndex
+}
+
+func (c Raid) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
+	return updateRaidBlock
+}
+
+func (c Raid) GetUpdateInterval() int {
+	return c.UpdateInterval
+}
+
+func updateRaidBlock(b *i3barjson.Block, c BlockConfig) {
 	fullTextFmt := "R: %s"
 	mdstatPath := "/proc/mdstat"
 	stats, err := ioutil.ReadFile(mdstatPath)

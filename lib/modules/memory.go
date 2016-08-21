@@ -3,20 +3,27 @@ package modules
 import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
-	"github.com/davidscholberg/goblocks/lib/types"
 	"os"
-	"time"
 )
 
-func getMemBlock() *types.GoBlock {
-	return newGoBlock(
-		i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-		time.NewTicker(time.Second),
-		updateMemBlock,
-	)
+type Memory struct {
+	BlockIndex     int `mapstructure:"block_index"`
+	UpdateInterval int `mapstructure:"update_interval"`
 }
 
-func updateMemBlock(b *i3barjson.Block) {
+func (c Memory) GetBlockIndex() int {
+	return c.BlockIndex
+}
+
+func (c Memory) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
+	return updateMemBlock
+}
+
+func (c Memory) GetUpdateInterval() int {
+	return c.UpdateInterval
+}
+
+func updateMemBlock(b *i3barjson.Block, c BlockConfig) {
 	var memAvail, memJunk int64
 	fullTextFmt := "M: %s"
 	r, err := os.Open("/proc/meminfo")

@@ -3,26 +3,33 @@ package modules
 import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
-	"github.com/davidscholberg/goblocks/lib/types"
 	"os"
-	"time"
 )
 
-var ifaceName string
-
-func getIfaceBlock() *types.GoBlock {
-	return newGoBlock(
-		i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-		time.NewTicker(time.Second),
-		updateIfaceBlock,
-	)
+type Interface struct {
+	BlockIndex     int    `mapstructure:"block_index"`
+	UpdateInterval int    `mapstructure:"update_interval"`
+	IfaceName      string `mapstructure:"interface_name"`
 }
 
-func updateIfaceBlock(b *i3barjson.Block) {
+func (c Interface) GetBlockIndex() int {
+	return c.BlockIndex
+}
+
+func (c Interface) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
+	return updateIfaceBlock
+}
+
+func (c Interface) GetUpdateInterval() int {
+	return c.UpdateInterval
+}
+
+func updateIfaceBlock(b *i3barjson.Block, c BlockConfig) {
+	cfg := c.(Interface)
 	var statusStr string
 	fullTextFmt := "E: %s"
 	// TODO: make interface name configurable
-	sysFilePath := fmt.Sprintf("/sys/class/net/%s/operstate", ifaceName)
+	sysFilePath := fmt.Sprintf("/sys/class/net/%s/operstate", cfg.IfaceName)
 	r, err := os.Open(sysFilePath)
 	if err != nil {
 		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())

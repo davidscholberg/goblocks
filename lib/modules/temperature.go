@@ -3,28 +3,35 @@ package modules
 import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
-	"github.com/davidscholberg/goblocks/lib/types"
 	"io/ioutil"
 	"os"
 	"strings"
-	"time"
 )
 
-var sysDirName string
-
-func getTempBlock() *types.GoBlock {
-	return newGoBlock(
-		i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-		time.NewTicker(time.Second),
-		updateTempBlock,
-	)
+type Temperature struct {
+	BlockIndex     int    `mapstructure:"block_index"`
+	UpdateInterval int    `mapstructure:"update_interval"`
+	CpuTempPath    string `mapstructure:"cpu_temp_path"`
 }
 
-func updateTempBlock(b *i3barjson.Block) {
+func (c Temperature) GetBlockIndex() int {
+	return c.BlockIndex
+}
+
+func (c Temperature) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
+	return updateTempBlock
+}
+
+func (c Temperature) GetUpdateInterval() int {
+	return c.UpdateInterval
+}
+
+func updateTempBlock(b *i3barjson.Block, c BlockConfig) {
+	cfg := c.(Temperature)
 	totalTemp := 0
 	procs := 0
-	sysFileNameFmt := fmt.Sprintf("%s/%%s", sysDirName)
-	sysFiles, err := ioutil.ReadDir(sysDirName)
+	sysFileNameFmt := fmt.Sprintf("%s/%%s", cfg.CpuTempPath)
+	sysFiles, err := ioutil.ReadDir(cfg.CpuTempPath)
 	if err != nil {
 		b.FullText = err.Error()
 		return
