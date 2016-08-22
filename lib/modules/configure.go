@@ -10,6 +10,7 @@ type BlockConfig interface {
 	GetBlockIndex() int
 	GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig)
 	GetUpdateInterval() int
+	GetUpdateSignal() int
 }
 
 type GoBlock struct {

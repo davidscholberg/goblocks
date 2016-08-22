@@ -9,6 +9,7 @@ import (
 type Disk struct {
 	BlockIndex     int `mapstructure:"block_index"`
 	UpdateInterval int `mapstructure:"update_interval"`
+	UpdateSignal   int `mapstructure:"update_signal"`
 }
 
 func (c Disk) GetBlockIndex() int {
@@ -21,6 +22,10 @@ func (c Disk) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 
 func (c Disk) GetUpdateInterval() int {
 	return c.UpdateInterval
+}
+
+func (c Disk) GetUpdateSignal() int {
+	return c.UpdateSignal
 }
 
 func updateDiskBlock(b *i3barjson.Block, c BlockConfig) {

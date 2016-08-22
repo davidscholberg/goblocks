@@ -11,6 +11,7 @@ import (
 type Temperature struct {
 	BlockIndex     int    `mapstructure:"block_index"`
 	UpdateInterval int    `mapstructure:"update_interval"`
+	UpdateSignal   int    `mapstructure:"update_signal"`
 	CpuTempPath    string `mapstructure:"cpu_temp_path"`
 }
 
@@ -24,6 +25,10 @@ func (c Temperature) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 
 func (c Temperature) GetUpdateInterval() int {
 	return c.UpdateInterval
+}
+
+func (c Temperature) GetUpdateSignal() int {
+	return c.UpdateSignal
 }
 
 func updateTempBlock(b *i3barjson.Block, c BlockConfig) {

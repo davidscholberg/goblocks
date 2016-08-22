@@ -8,6 +8,7 @@ import (
 type Time struct {
 	BlockIndex     int `mapstructure:"block_index"`
 	UpdateInterval int `mapstructure:"update_interval"`
+	UpdateSignal   int `mapstructure:"update_signal"`
 }
 
 func (c Time) GetBlockIndex() int {
@@ -20,6 +21,10 @@ func (c Time) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 
 func (c Time) GetUpdateInterval() int {
 	return c.UpdateInterval
+}
+
+func (c Time) GetUpdateSignal() int {
+	return c.UpdateSignal
 }
 
 func updateTimeBlock(b *i3barjson.Block, c BlockConfig) {

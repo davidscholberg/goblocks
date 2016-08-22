@@ -37,12 +37,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s", err)
 		return
 	}
-	for _, goblock := range goblocks {
-		statusLine = append(statusLine, &goblock.Block)
-
-		// update block so it's ready for first run
-		goblock.Update(&goblock.Block, goblock.Config)
-	}
 
 	var selectCases modules.SelectCases
 	selectCases.AddBlockSelectCases(goblocks)
@@ -60,14 +54,28 @@ func main() {
 		modules.SelectActionExit,
 	)
 
-	sigVolChan := make(chan os.Signal, 1)
-	signal.Notify(sigVolChan, SIGRTMIN+8)
-	selectCases.Add(
-		sigVolChan,
-		modules.SelectActionUpdateVolumeBlock,
-		// TODO: don't hardcode this!!!
-		goblocks[6],
-	)
+	for _, goblock := range goblocks {
+		statusLine = append(statusLine, &goblock.Block)
+
+		updateSignal := goblock.Config.GetUpdateSignal()
+		if updateSignal > 0 {
+			sigUpdateChan := make(chan os.Signal, 1)
+			signal.Notify(sigUpdateChan, SIGRTMIN+syscall.Signal(updateSignal))
+			updateFunc := goblock.Update
+			selectCases.Add(
+				sigUpdateChan,
+				func(b *modules.GoBlock) (bool, bool) {
+					updateFunc(&b.Block, b.Config)
+					return modules.SelectActionRefresh(b)
+				},
+				goblock,
+			)
+
+		}
+
+		// update block so it's ready for first run
+		goblock.Update(&goblock.Block, goblock.Config)
+	}
 
 	h := i3barjson.Header{Version: 1}
 	err = i3barjson.Init(os.Stdout, nil, h)

@@ -9,6 +9,7 @@ import (
 type Memory struct {
 	BlockIndex     int `mapstructure:"block_index"`
 	UpdateInterval int `mapstructure:"update_interval"`
+	UpdateSignal   int `mapstructure:"update_signal"`
 }
 
 func (c Memory) GetBlockIndex() int {
@@ -21,6 +22,10 @@ func (c Memory) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 
 func (c Memory) GetUpdateInterval() int {
 	return c.UpdateInterval
+}
+
+func (c Memory) GetUpdateSignal() int {
+	return c.UpdateSignal
 }
 
 func updateMemBlock(b *i3barjson.Block, c BlockConfig) {

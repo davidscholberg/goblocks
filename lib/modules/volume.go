@@ -10,6 +10,7 @@ import (
 type Volume struct {
 	BlockIndex     int `mapstructure:"block_index"`
 	UpdateInterval int `mapstructure:"update_interval"`
+	UpdateSignal   int `mapstructure:"update_signal"`
 }
 
 func (c Volume) GetBlockIndex() int {
@@ -22,6 +23,10 @@ func (c Volume) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 
 func (c Volume) GetUpdateInterval() int {
 	return c.UpdateInterval
+}
+
+func (c Volume) GetUpdateSignal() int {
+	return c.UpdateSignal
 }
 
 func updateVolumeBlock(b *i3barjson.Block, c BlockConfig) {
@@ -45,10 +50,4 @@ func updateVolumeBlock(b *i3barjson.Block, c BlockConfig) {
 		return
 	}
 	b.FullText = fmt.Sprintf(fullTextFmt, outStr[iBegin+1:iEnd])
-}
-
-func SelectActionUpdateVolumeBlock(b *GoBlock) (bool, bool) {
-	// TODO: fix error handling
-	updateVolumeBlock(&b.Block, b.Config)
-	return SelectActionRefresh(b)
 }

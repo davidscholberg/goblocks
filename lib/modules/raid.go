@@ -10,6 +10,7 @@ import (
 type Raid struct {
 	BlockIndex     int `mapstructure:"block_index"`
 	UpdateInterval int `mapstructure:"update_interval"`
+	UpdateSignal   int `mapstructure:"update_signal"`
 }
 
 func (c Raid) GetBlockIndex() int {
@@ -22,6 +23,10 @@ func (c Raid) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 
 func (c Raid) GetUpdateInterval() int {
 	return c.UpdateInterval
+}
+
+func (c Raid) GetUpdateSignal() int {
+	return c.UpdateSignal
 }
 
 func updateRaidBlock(b *i3barjson.Block, c BlockConfig) {
