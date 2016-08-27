@@ -6,9 +6,10 @@ import (
 )
 
 type Time struct {
-	BlockIndex     int `mapstructure:"block_index"`
-	UpdateInterval int `mapstructure:"update_interval"`
-	UpdateSignal   int `mapstructure:"update_signal"`
+	BlockIndex     int    `mapstructure:"block_index"`
+	UpdateInterval int    `mapstructure:"update_interval"`
+	UpdateSignal   int    `mapstructure:"update_signal"`
+	TimeFormat     string `mapstructure:"time_format"`
 }
 
 func (c Time) GetBlockIndex() int {
@@ -28,5 +29,6 @@ func (c Time) GetUpdateSignal() int {
 }
 
 func updateTimeBlock(b *i3barjson.Block, c BlockConfig) {
-	b.FullText = time.Now().Format("2006-01-02 15:04")
+	cfg := c.(Time)
+	b.FullText = time.Now().Format(cfg.TimeFormat)
 }
