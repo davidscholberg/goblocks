@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
 	"github.com/davidscholberg/goblocks/lib/modules"
-	"github.com/davidscholberg/goblocks/lib/types"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"os"
 	"os/signal"
 	"reflect"
@@ -13,44 +14,74 @@ import (
 )
 
 func main() {
+	// TODO: set up default values
+	confPath := fmt.Sprintf(
+		"%s/.config/goblocks/goblocks.yml",
+		os.Getenv("HOME"),
+	)
+	confStr, err := ioutil.ReadFile(confPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		return
+	}
+
+	var cfg modules.Config
+	err = yaml.Unmarshal(confStr, &cfg)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		return
+	}
+
 	var SIGRTMIN = syscall.Signal(34)
 
 	var statusLine i3barjson.StatusLine
-	goblocks := modules.GetGoBlocks()
-	for _, goblock := range goblocks {
-		statusLine = append(statusLine, &goblock.Block)
-
-		// update block so it's ready for first run
-		goblock.Update(&goblock.Block)
+	goblocks, err := modules.GetGoBlocks(cfg)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		return
 	}
 
-	var selectCases types.SelectCases
+	var selectCases modules.SelectCases
 	selectCases.AddBlockSelectCases(goblocks)
 
 	updateTicker := time.NewTicker(time.Second)
 	selectCases.AddChanSelectCase(
 		updateTicker.C,
-		types.SelectActionRefresh,
+		modules.SelectActionRefresh,
 	)
 
 	sigEndChan := make(chan os.Signal, 1)
 	signal.Notify(sigEndChan, syscall.SIGINT, syscall.SIGTERM)
 	selectCases.AddChanSelectCase(
 		sigEndChan,
-		types.SelectActionExit,
+		modules.SelectActionExit,
 	)
 
-	sigVolChan := make(chan os.Signal, 1)
-	signal.Notify(sigVolChan, SIGRTMIN+8)
-	selectCases.Add(
-		sigVolChan,
-		modules.SelectActionUpdateVolumeBlock,
-		// TODO: don't hardcode this!!!
-		goblocks[6],
-	)
+	for _, goblock := range goblocks {
+		statusLine = append(statusLine, &goblock.Block)
+
+		updateSignal := goblock.Config.GetUpdateSignal()
+		if updateSignal > 0 {
+			sigUpdateChan := make(chan os.Signal, 1)
+			signal.Notify(sigUpdateChan, SIGRTMIN+syscall.Signal(updateSignal))
+			updateFunc := goblock.Update
+			selectCases.Add(
+				sigUpdateChan,
+				func(b *modules.GoBlock) (bool, bool) {
+					updateFunc(&b.Block, b.Config)
+					return modules.SelectActionRefresh(b)
+				},
+				goblock,
+			)
+
+		}
+
+		// update block so it's ready for first run
+		goblock.Update(&goblock.Block, goblock.Config)
+	}
 
 	h := i3barjson.Header{Version: 1}
-	err := i3barjson.Init(os.Stdout, nil, h)
+	err = i3barjson.Init(os.Stdout, nil, h)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
 		return

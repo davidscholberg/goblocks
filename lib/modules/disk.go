@@ -3,20 +3,32 @@ package modules
 import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
-	"github.com/davidscholberg/goblocks/lib/types"
 	"syscall"
-	"time"
 )
 
-func getDiskBlock() *types.GoBlock {
-	return newGoBlock(
-		i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-		time.NewTicker(time.Second),
-		updateDiskBlock,
-	)
+type Disk struct {
+	BlockIndex     int `yaml:"block_index"`
+	UpdateInterval int `yaml:"update_interval"`
+	UpdateSignal   int `yaml:"update_signal"`
 }
 
-func updateDiskBlock(b *i3barjson.Block) {
+func (c Disk) GetBlockIndex() int {
+	return c.BlockIndex
+}
+
+func (c Disk) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
+	return updateDiskBlock
+}
+
+func (c Disk) GetUpdateInterval() int {
+	return c.UpdateInterval
+}
+
+func (c Disk) GetUpdateSignal() int {
+	return c.UpdateSignal
+}
+
+func updateDiskBlock(b *i3barjson.Block, c BlockConfig) {
 	fullTextFmt := "D: %s"
 	fsList := []string{"/", "/home"}
 	var err error
@@ -24,11 +36,13 @@ func updateDiskBlock(b *i3barjson.Block) {
 		stats := syscall.Statfs_t{}
 		err = syscall.Statfs(fsPath, &stats)
 		if err != nil {
+			b.Urgent = true
 			b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
 			return
 		}
 		percentFree := float64(stats.Bavail) * 100 / float64(stats.Blocks)
 		if percentFree < 5.0 {
+			b.Urgent = true
 			b.FullText = fmt.Sprintf(
 				fullTextFmt,
 				fmt.Sprintf(
@@ -40,5 +54,6 @@ func updateDiskBlock(b *i3barjson.Block) {
 			return
 		}
 	}
+	b.Urgent = false
 	b.FullText = fmt.Sprintf(fullTextFmt, "ok")
 }

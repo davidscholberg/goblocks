@@ -3,21 +3,33 @@ package modules
 import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
-	"github.com/davidscholberg/goblocks/lib/types"
 	"os/exec"
 	"strings"
-	"time"
 )
 
-func getVolumeBlock() *types.GoBlock {
-	return newGoBlock(
-		i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-		time.NewTicker(time.Second*60),
-		updateVolumeBlock,
-	)
+type Volume struct {
+	BlockIndex     int `yaml:"block_index"`
+	UpdateInterval int `yaml:"update_interval"`
+	UpdateSignal   int `yaml:"update_signal"`
 }
 
-func updateVolumeBlock(b *i3barjson.Block) {
+func (c Volume) GetBlockIndex() int {
+	return c.BlockIndex
+}
+
+func (c Volume) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
+	return updateVolumeBlock
+}
+
+func (c Volume) GetUpdateInterval() int {
+	return c.UpdateInterval
+}
+
+func (c Volume) GetUpdateSignal() int {
+	return c.UpdateSignal
+}
+
+func updateVolumeBlock(b *i3barjson.Block, c BlockConfig) {
 	fullTextFmt := "V: %s"
 	amixerCmd := "amixer"
 	amixerArgs := []string{"-D", "default", "get", "Master"}
@@ -38,10 +50,4 @@ func updateVolumeBlock(b *i3barjson.Block) {
 		return
 	}
 	b.FullText = fmt.Sprintf(fullTextFmt, outStr[iBegin+1:iEnd])
-}
-
-func SelectActionUpdateVolumeBlock(b *types.GoBlock) (bool, bool) {
-	// TODO: fix error handling
-	updateVolumeBlock(&b.Block)
-	return types.SelectActionRefresh(b)
 }

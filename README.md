@@ -4,7 +4,7 @@ Goblocks is an [i3status](https://i3wm.org/i3status/) replacement written in [Go
 
 The main goal of this project is to match the features of [i3blocks](https://github.com/vivien/i3blocks) while keeping all of the modules written in pure Go. This will keep Goblocks fast and lightweight, allowing the user to configure Goblocks with a very high update frequency without fear of taking up excessive system resource and battery.
 
-**WARNING:** Goblocks is still very rough around the edges. There's a lot of hardcoded stuff and no configuration yet. See the [TODO](#todo) list.
+**WARNING:** Goblocks is still somewhat rough around the edges. See the [TODO](#todo) list.
 
 ### Get
 
@@ -14,9 +14,42 @@ Fetch and build Goblocks:
 go get github.com/davidscholberg/goblocks
 ```
 
+### Configure
+
+Goblocks configuration is specified in [YAML](http://yaml.org/). The configuration file path is `$HOME/.config/goblocks/goblocks.yml`. Here is a simple example configuration:
+
+```yaml
+load:
+    block_index: 1
+    update_interval: 1
+    crit_load: 4
+
+interfaces:
+    - block_index: 2
+      update_interval: 1
+      interface_name: enp3s0
+
+    - block_index: 3
+      update_interval: 1
+      interface_name: wlp4s2
+
+volume:
+    block_index: 4
+    update_interval: 60
+    update_signal: 8
+
+time:
+    block_index: 5
+    update_interval: 1
+    time_format: 2006-01-02 15:04
+```
+
+A full configuration example with all available block types and options can be found at [config/goblocks.yml](config/goblocks.yml).
+
 ### TODO
 
-* Add configuration support (probably with [viper](https://github.com/spf13/viper)).
-* Add cli arg support (probably with [cobra](https://github.com/spf13/cobra)).
+* Add ability to specify block prefix in config.
+* Update ticker handling to allow for times less than a second.
+* Add cli arg support.
 * Add color support.
 * Add a debug mode that pretty prints the JSON output.
