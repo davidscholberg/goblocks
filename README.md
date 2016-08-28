@@ -57,5 +57,8 @@ A full configuration example with all available block types and options can be f
 ### TODO
 
 * Update ticker handling to allow for times less than a second.
+* Add battery block.
+* Add wifi block.
+* Allow disk mounts to be loaded via config for disk block.
 * Add cli arg support.
 * Add color support.
