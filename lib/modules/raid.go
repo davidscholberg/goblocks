@@ -34,13 +34,16 @@ func updateRaidBlock(b *i3barjson.Block, c BlockConfig) {
 	mdstatPath := "/proc/mdstat"
 	stats, err := ioutil.ReadFile(mdstatPath)
 	if err != nil {
+		b.Urgent = true
 		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
 		return
 	}
 	i := strings.Index(string(stats), "_")
 	if i != -1 {
+		b.Urgent = true
 		b.FullText = fmt.Sprintf(fullTextFmt, "degraded")
 		return
 	}
+	b.Urgent = false
 	b.FullText = fmt.Sprintf(fullTextFmt, "ok")
 }

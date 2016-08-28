@@ -36,11 +36,13 @@ func updateDiskBlock(b *i3barjson.Block, c BlockConfig) {
 		stats := syscall.Statfs_t{}
 		err = syscall.Statfs(fsPath, &stats)
 		if err != nil {
+			b.Urgent = true
 			b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
 			return
 		}
 		percentFree := float64(stats.Bavail) * 100 / float64(stats.Blocks)
 		if percentFree < 5.0 {
+			b.Urgent = true
 			b.FullText = fmt.Sprintf(
 				fullTextFmt,
 				fmt.Sprintf(
@@ -52,5 +54,6 @@ func updateDiskBlock(b *i3barjson.Block, c BlockConfig) {
 			return
 		}
 	}
+	b.Urgent = false
 	b.FullText = fmt.Sprintf(fullTextFmt, "ok")
 }

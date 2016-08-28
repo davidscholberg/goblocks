@@ -37,14 +37,21 @@ func updateIfaceBlock(b *i3barjson.Block, c BlockConfig) {
 	sysFilePath := fmt.Sprintf("/sys/class/net/%s/operstate", cfg.IfaceName)
 	r, err := os.Open(sysFilePath)
 	if err != nil {
+		b.Urgent = true
 		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
 		return
 	}
 	_, err = fmt.Fscanf(r, "%s", &statusStr)
 	if err != nil {
+		b.Urgent = true
 		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
 		return
 	}
 	r.Close()
+	if statusStr == "up" {
+		b.Urgent = false
+	} else {
+		b.Urgent = true
+	}
 	b.FullText = fmt.Sprintf(fullTextFmt, statusStr)
 }

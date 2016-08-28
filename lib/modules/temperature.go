@@ -9,10 +9,11 @@ import (
 )
 
 type Temperature struct {
-	BlockIndex     int    `mapstructure:"block_index"`
-	UpdateInterval int    `mapstructure:"update_interval"`
-	UpdateSignal   int    `mapstructure:"update_signal"`
-	CpuTempPath    string `mapstructure:"cpu_temp_path"`
+	BlockIndex     int     `mapstructure:"block_index"`
+	UpdateInterval int     `mapstructure:"update_interval"`
+	UpdateSignal   int     `mapstructure:"update_signal"`
+	CpuTempPath    string  `mapstructure:"cpu_temp_path"`
+	CritTemp       float64 `mapstructure:"crit_temp"`
 }
 
 func (c Temperature) GetBlockIndex() int {
@@ -38,6 +39,7 @@ func updateTempBlock(b *i3barjson.Block, c BlockConfig) {
 	sysFileNameFmt := fmt.Sprintf("%s/%%s", cfg.CpuTempPath)
 	sysFiles, err := ioutil.ReadDir(cfg.CpuTempPath)
 	if err != nil {
+		b.Urgent = true
 		b.FullText = err.Error()
 		return
 	}
@@ -48,12 +50,14 @@ func updateTempBlock(b *i3barjson.Block, c BlockConfig) {
 		}
 		r, err := os.Open(fmt.Sprintf(sysFileNameFmt, sysFileName))
 		if err != nil {
+			b.Urgent = true
 			b.FullText = err.Error()
 			return
 		}
 		var temp int
 		_, err = fmt.Fscanf(r, "%d", &temp)
 		if err != nil {
+			b.Urgent = true
 			b.FullText = err.Error()
 			return
 		}
@@ -61,5 +65,11 @@ func updateTempBlock(b *i3barjson.Block, c BlockConfig) {
 		totalTemp += temp
 		procs++
 	}
-	b.FullText = fmt.Sprintf("%.2f°C", float64(totalTemp)/float64(procs*1000))
+	avgTemp := float64(totalTemp) / float64(procs*1000)
+	if avgTemp >= cfg.CritTemp {
+		b.Urgent = true
+	} else {
+		b.Urgent = false
+	}
+	b.FullText = fmt.Sprintf("%.2f°C", avgTemp)
 }
