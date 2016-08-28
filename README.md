@@ -16,7 +16,8 @@ go get github.com/davidscholberg/goblocks
 
 ### TODO
 
-* Add configuration support (probably with [viper](https://github.com/spf13/viper)).
-* Add cli arg support (probably with [cobra](https://github.com/spf13/cobra)).
+* Add ability to specify block prefix in config.
+* Update ticker handling to allow for times less than a second.
+* Add cli arg support.
 * Add color support.
 * Add a debug mode that pretty prints the JSON output.
