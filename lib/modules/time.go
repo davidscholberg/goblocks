@@ -6,10 +6,10 @@ import (
 )
 
 type Time struct {
-	BlockIndex     int    `mapstructure:"block_index"`
-	UpdateInterval int    `mapstructure:"update_interval"`
-	UpdateSignal   int    `mapstructure:"update_signal"`
-	TimeFormat     string `mapstructure:"time_format"`
+	BlockIndex     int    `yaml:"block_index"`
+	UpdateInterval int    `yaml:"update_interval"`
+	UpdateSignal   int    `yaml:"update_signal"`
+	TimeFormat     string `yaml:"time_format"`
 }
 
 func (c Time) GetBlockIndex() int {

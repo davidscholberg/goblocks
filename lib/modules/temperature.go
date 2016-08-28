@@ -9,11 +9,11 @@ import (
 )
 
 type Temperature struct {
-	BlockIndex     int     `mapstructure:"block_index"`
-	UpdateInterval int     `mapstructure:"update_interval"`
-	UpdateSignal   int     `mapstructure:"update_signal"`
-	CpuTempPath    string  `mapstructure:"cpu_temp_path"`
-	CritTemp       float64 `mapstructure:"crit_temp"`
+	BlockIndex     int     `yaml:"block_index"`
+	UpdateInterval int     `yaml:"update_interval"`
+	UpdateSignal   int     `yaml:"update_signal"`
+	CpuTempPath    string  `yaml:"cpu_temp_path"`
+	CritTemp       float64 `yaml:"crit_temp"`
 }
 
 func (c Temperature) GetBlockIndex() int {

@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
 	"reflect"
 	"time"
@@ -21,42 +22,51 @@ type GoBlock struct {
 }
 
 type Config struct {
-	Disk        Disk        `mapstructure:"disk"`
-	Interface   Interface   `mapstructure:"interface"`
-	Load        Load        `mapstructure:"load"`
-	Memory      Memory      `mapstructure:"memory"`
-	Raid        Raid        `mapstructure:"raid"`
-	Temperature Temperature `mapstructure:"temperature"`
-	Time        Time        `mapstructure:"time"`
-	Volume      Volume      `mapstructure:"volume"`
+	Disk         Disk          `yaml:"disk"`
+	Interfaces   []Interface   `yaml:"interfaces"`
+	Load         Load          `yaml:"load"`
+	Memory       Memory        `yaml:"memory"`
+	Raid         Raid          `yaml:"raid"`
+	Temperatures []Temperature `yaml:"temperatures"`
+	Time         Time          `yaml:"time"`
+	Volume       Volume        `yaml:"volume"`
 }
 
 func GetGoBlocks(c Config) ([]*GoBlock, error) {
 	// TODO: error handling
 	// TODO: include i3barjson.Block config in config structs
+	var blockConfigs []BlockConfig
 	cType := reflect.ValueOf(c)
-	goblocksSize := 0
 	for i := 0; i < cType.NumField(); i++ {
-		blockConfig := cType.Field(i).Interface().(BlockConfig)
-		blockIndex := blockConfig.GetBlockIndex()
-		if blockIndex > 0 {
-			goblocksSize++
+		field := cType.Field(i)
+		switch field.Kind() {
+		case reflect.Struct:
+			b := field.Interface().(BlockConfig)
+			if b.GetBlockIndex() > 0 {
+				blockConfigs = append(blockConfigs, b)
+			}
+		case reflect.Slice:
+			for i := 0; i < field.Len(); i++ {
+				b := field.Index(i).Interface().(BlockConfig)
+				if b.GetBlockIndex() > 0 {
+					blockConfigs = append(blockConfigs, b)
+				}
+			}
+		default:
+			return nil, fmt.Errorf("unexpected type: %s\n", field.Type())
 		}
 	}
 
-	goblocks := make([]*GoBlock, goblocksSize)
-	for i := 0; i < cType.NumField(); i++ {
-		blockConfig := cType.Field(i).Interface().(BlockConfig)
+	goblocks := make([]*GoBlock, len(blockConfigs))
+	for _, blockConfig := range blockConfigs {
 		blockIndex := blockConfig.GetBlockIndex()
-		if blockIndex > 0 {
-			updateFunc := blockConfig.GetUpdateFunc()
-			ticker := time.NewTicker(time.Second * time.Duration(blockConfig.GetUpdateInterval()))
-			goblocks[blockIndex-1] = &GoBlock{
-				i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
-				blockConfig,
-				ticker,
-				updateFunc,
-			}
+		updateFunc := blockConfig.GetUpdateFunc()
+		ticker := time.NewTicker(time.Second * time.Duration(blockConfig.GetUpdateInterval()))
+		goblocks[blockIndex-1] = &GoBlock{
+			i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
+			blockConfig,
+			ticker,
+			updateFunc,
 		}
 	}
 

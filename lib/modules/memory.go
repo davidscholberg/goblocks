@@ -7,10 +7,10 @@ import (
 )
 
 type Memory struct {
-	BlockIndex     int     `mapstructure:"block_index"`
-	UpdateInterval int     `mapstructure:"update_interval"`
-	UpdateSignal   int     `mapstructure:"update_signal"`
-	CritMem        float64 `mapstructure:"crit_mem"`
+	BlockIndex     int     `yaml:"block_index"`
+	UpdateInterval int     `yaml:"update_interval"`
+	UpdateSignal   int     `yaml:"update_signal"`
+	CritMem        float64 `yaml:"crit_mem"`
 }
 
 func (c Memory) GetBlockIndex() int {

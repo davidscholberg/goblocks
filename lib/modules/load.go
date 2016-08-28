@@ -7,10 +7,10 @@ import (
 )
 
 type Load struct {
-	BlockIndex     int     `mapstructure:"block_index"`
-	UpdateInterval int     `mapstructure:"update_interval"`
-	UpdateSignal   int     `mapstructure:"update_signal"`
-	CritLoad       float64 `mapstructure:"crit_load"`
+	BlockIndex     int     `yaml:"block_index"`
+	UpdateInterval int     `yaml:"update_interval"`
+	UpdateSignal   int     `yaml:"update_signal"`
+	CritLoad       float64 `yaml:"crit_load"`
 }
 
 func (c Load) GetBlockIndex() int {

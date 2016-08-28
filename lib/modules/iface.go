@@ -7,10 +7,10 @@ import (
 )
 
 type Interface struct {
-	BlockIndex     int    `mapstructure:"block_index"`
-	UpdateInterval int    `mapstructure:"update_interval"`
-	UpdateSignal   int    `mapstructure:"update_signal"`
-	IfaceName      string `mapstructure:"interface_name"`
+	BlockIndex     int    `yaml:"block_index"`
+	UpdateInterval int    `yaml:"update_interval"`
+	UpdateSignal   int    `yaml:"update_signal"`
+	IfaceName      string `yaml:"interface_name"`
 }
 
 func (c Interface) GetBlockIndex() int {

@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
 	"github.com/davidscholberg/goblocks/lib/modules"
-	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"os"
 	"os/signal"
 	"reflect"
@@ -14,16 +15,18 @@ import (
 
 func main() {
 	// TODO: set up default values
-	viper.SetConfigName("goblocks")
-	viper.AddConfigPath("$HOME/.config/goblocks")
-	err := viper.ReadInConfig()
+	confPath := fmt.Sprintf(
+		"%s/.config/goblocks/goblocks.yml",
+		os.Getenv("HOME"),
+	)
+	confStr, err := ioutil.ReadFile(confPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
 		return
 	}
 
 	var cfg modules.Config
-	err = viper.Unmarshal(&cfg)
+	err = yaml.Unmarshal(confStr, &cfg)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
 		return
