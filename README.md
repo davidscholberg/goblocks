@@ -19,33 +19,37 @@ go get github.com/davidscholberg/goblocks
 Goblocks configuration is specified in [YAML](http://yaml.org/). The configuration file path is `$HOME/.config/goblocks/goblocks.yml`. Here is a simple example configuration:
 
 ```yaml
-load:
-    block_index: 1
-    update_interval: 1
-    label: "L: "
-    crit_load: 4
+global:
+    debug: False
 
-interfaces:
-    - block_index: 2
-      update_interval: 1
-      label: "E: "
-      interface_name: enp3s0
+blocks:
+    load:
+        block_index: 1
+        update_interval: 1
+        label: "L: "
+        crit_load: 4
 
-    - block_index: 3
-      update_interval: 1
-      label: "W: "
-      interface_name: wlp4s2
+    interfaces:
+        - block_index: 2
+          update_interval: 1
+          label: "E: "
+          interface_name: enp3s0
 
-volume:
-    block_index: 4
-    update_interval: 60
-    label: "V: "
-    update_signal: 8
+        - block_index: 3
+          update_interval: 1
+          label: "W: "
+          interface_name: wlp4s2
 
-time:
-    block_index: 5
-    update_interval: 1
-    time_format: 2006-01-02 15:04
+    volume:
+        block_index: 4
+        update_interval: 60
+        label: "V: "
+        update_signal: 8
+
+    time:
+        block_index: 5
+        update_interval: 1
+        time_format: 2006-01-02 15:04
 ```
 
 A full configuration example with all available block types and options can be found at [config/goblocks.yml](config/goblocks.yml).
@@ -55,4 +59,3 @@ A full configuration example with all available block types and options can be f
 * Update ticker handling to allow for times less than a second.
 * Add cli arg support.
 * Add color support.
-* Add a debug mode that pretty prints the JSON output.

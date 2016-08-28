@@ -14,6 +14,10 @@ type BlockConfig interface {
 	GetUpdateSignal() int
 }
 
+type GlobalConfig struct {
+	Debug bool `yaml:"debug"`
+}
+
 type GoBlock struct {
 	Block  i3barjson.Block
 	Config BlockConfig
@@ -22,6 +26,11 @@ type GoBlock struct {
 }
 
 type Config struct {
+	Global GlobalConfig `yaml:"global"`
+	Blocks BlockConfigs `yaml:"blocks"`
+}
+
+type BlockConfigs struct {
 	Disk         Disk          `yaml:"disk"`
 	Interfaces   []Interface   `yaml:"interfaces"`
 	Load         Load          `yaml:"load"`
@@ -32,10 +41,10 @@ type Config struct {
 	Volume       Volume        `yaml:"volume"`
 }
 
-func GetGoBlocks(c Config) ([]*GoBlock, error) {
+func GetGoBlocks(c BlockConfigs) ([]*GoBlock, error) {
 	// TODO: error handling
 	// TODO: include i3barjson.Block config in config structs
-	var blockConfigs []BlockConfig
+	var blockConfigSlice []BlockConfig
 	cType := reflect.ValueOf(c)
 	for i := 0; i < cType.NumField(); i++ {
 		field := cType.Field(i)
@@ -43,13 +52,13 @@ func GetGoBlocks(c Config) ([]*GoBlock, error) {
 		case reflect.Struct:
 			b := field.Interface().(BlockConfig)
 			if b.GetBlockIndex() > 0 {
-				blockConfigs = append(blockConfigs, b)
+				blockConfigSlice = append(blockConfigSlice, b)
 			}
 		case reflect.Slice:
 			for i := 0; i < field.Len(); i++ {
 				b := field.Index(i).Interface().(BlockConfig)
 				if b.GetBlockIndex() > 0 {
-					blockConfigs = append(blockConfigs, b)
+					blockConfigSlice = append(blockConfigSlice, b)
 				}
 			}
 		default:
@@ -57,8 +66,8 @@ func GetGoBlocks(c Config) ([]*GoBlock, error) {
 		}
 	}
 
-	goblocks := make([]*GoBlock, len(blockConfigs))
-	for _, blockConfig := range blockConfigs {
+	goblocks := make([]*GoBlock, len(blockConfigSlice))
+	for _, blockConfig := range blockConfigSlice {
 		blockIndex := blockConfig.GetBlockIndex()
 		updateFunc := blockConfig.GetUpdateFunc()
 		ticker := time.NewTicker(time.Second * time.Duration(blockConfig.GetUpdateInterval()))

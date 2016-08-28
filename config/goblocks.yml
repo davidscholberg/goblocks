@@ -1,5 +1,14 @@
 # Full Goblocks config example with all available block types and options.
 
+# The global section contains global config options.
+
+# debug is a boolean indicating whether or not to pretty print the json output.
+
+global:
+    debug: False
+
+# Below is the per-block configuration.
+
 # Each block must have a block_index field indicating the block's position.
 # block_index values must start with 1 and be sequential.
 
@@ -11,47 +20,48 @@
 # Each block may optionally have a label field indicating a prefix string to
 # prepend to the block's status text.
 
-raid:
-    block_index: 1
-    update_interval: 1
-    label: "R: "
+blocks:
+    raid:
+        block_index: 1
+        update_interval: 1
+        label: "R: "
 
-disk:
-    block_index: 2
-    update_interval: 1
-    label: "D: "
+    disk:
+        block_index: 2
+        update_interval: 1
+        label: "D: "
 
-load:
-    block_index: 3
-    update_interval: 1
-    label: "L: "
-    crit_load: 4
+    load:
+        block_index: 3
+        update_interval: 1
+        label: "L: "
+        crit_load: 4
 
-memory:
-    block_index: 4
-    update_interval: 1
-    label: "M: "
-    crit_mem: 1
+    memory:
+        block_index: 4
+        update_interval: 1
+        label: "M: "
+        crit_mem: 1
 
 # Some block types can have multiple instances, which are specified in a YAML
 # array.
 
-temperatures:
-    - block_index: 5
-      update_interval: 1
-      cpu_temp_path: /sys/devices/platform/coretemp.0/hwmon/hwmon1
-      crit_temp: 50
+    temperatures:
+        - block_index: 5
+          update_interval: 1
+          cpu_temp_path: /sys/devices/platform/coretemp.0/hwmon/hwmon1
+          crit_temp: 50
 
-interfaces:
-    - block_index: 6
-      update_interval: 1
-      label: "E: "
-      interface_name: enp3s0
+    interfaces:
+        - block_index: 6
+          update_interval: 1
+          label: "E: "
+          interface_name: enp3s0
 
-    - block_index: 7
-      update_interval: 1
-      label: "W: "
-      interface_name: wlp4s2
+        - block_index: 7
+          update_interval: 1
+          label: "W: "
+          interface_name: wlp4s2
 
 # If a block has an update_signal field, then that block will be updated and
 # Goblocks refreshed when Goblocks receives an RTMIN signal offset by the given
@@ -60,16 +70,16 @@ interfaces:
 # will cause Goblocks to update the block and refresh.
 # The update_signal value must be 1 or greater.
 
-volume:
-    block_index: 8
-    update_interval: 60
-    label: "V: "
-    update_signal: 8
+    volume:
+        block_index: 8
+        update_interval: 60
+        label: "V: "
+        update_signal: 8
 
 # The time_format value must be a string in Go's standard time format (see
 # https://golang.org/pkg/time/#pkg-constants).
 
-time:
-    block_index: 9
-    update_interval: 1
-    time_format: 2006-01-02 15:04
+    time:
+        block_index: 9
+        update_interval: 1
+        time_format: 2006-01-02 15:04

@@ -35,7 +35,7 @@ func main() {
 	var SIGRTMIN = syscall.Signal(34)
 
 	var statusLine i3barjson.StatusLine
-	goblocks, err := modules.GetGoBlocks(cfg)
+	goblocks, err := modules.GetGoBlocks(cfg.Blocks)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
 		return
@@ -81,7 +81,7 @@ func main() {
 	}
 
 	h := i3barjson.Header{Version: 1}
-	err = i3barjson.Init(os.Stdout, nil, h)
+	err = i3barjson.Init(os.Stdout, nil, h, cfg.Global.Debug)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
 		return
