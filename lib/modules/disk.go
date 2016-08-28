@@ -7,9 +7,10 @@ import (
 )
 
 type Disk struct {
-	BlockIndex     int `yaml:"block_index"`
-	UpdateInterval int `yaml:"update_interval"`
-	UpdateSignal   int `yaml:"update_signal"`
+	BlockIndex     int    `yaml:"block_index"`
+	UpdateInterval int    `yaml:"update_interval"`
+	Label          string `yaml:"label"`
+	UpdateSignal   int    `yaml:"update_signal"`
 }
 
 func (c Disk) GetBlockIndex() int {
@@ -29,7 +30,12 @@ func (c Disk) GetUpdateSignal() int {
 }
 
 func updateDiskBlock(b *i3barjson.Block, c BlockConfig) {
-	fullTextFmt := "D: %s"
+	cfg := c.(Disk)
+	labelSep := ""
+	if cfg.Label != "" {
+		labelSep = " "
+	}
+	fullTextFmt := fmt.Sprintf("%s%s%%s", cfg.Label, labelSep)
 	fsList := []string{"/", "/home"}
 	var err error
 	for _, fsPath := range fsList {

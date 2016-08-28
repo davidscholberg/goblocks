@@ -9,6 +9,7 @@ import (
 type Memory struct {
 	BlockIndex     int     `yaml:"block_index"`
 	UpdateInterval int     `yaml:"update_interval"`
+	Label          string  `yaml:"label"`
 	UpdateSignal   int     `yaml:"update_signal"`
 	CritMem        float64 `yaml:"crit_mem"`
 }
@@ -31,8 +32,12 @@ func (c Memory) GetUpdateSignal() int {
 
 func updateMemBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Memory)
+	labelSep := ""
+	if cfg.Label != "" {
+		labelSep = " "
+	}
+	fullTextFmt := fmt.Sprintf("%s%s%%s", cfg.Label, labelSep)
 	var memAvail, memJunk int64
-	fullTextFmt := "M: %s"
 	r, err := os.Open("/proc/meminfo")
 	if err != nil {
 		b.Urgent = true

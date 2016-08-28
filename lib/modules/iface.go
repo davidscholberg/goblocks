@@ -9,6 +9,7 @@ import (
 type Interface struct {
 	BlockIndex     int    `yaml:"block_index"`
 	UpdateInterval int    `yaml:"update_interval"`
+	Label          string `yaml:"label"`
 	UpdateSignal   int    `yaml:"update_signal"`
 	IfaceName      string `yaml:"interface_name"`
 }
@@ -31,9 +32,12 @@ func (c Interface) GetUpdateSignal() int {
 
 func updateIfaceBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Interface)
+	labelSep := ""
+	if cfg.Label != "" {
+		labelSep = " "
+	}
+	fullTextFmt := fmt.Sprintf("%s%s%%s", cfg.Label, labelSep)
 	var statusStr string
-	fullTextFmt := "E: %s"
-	// TODO: make interface name configurable
 	sysFilePath := fmt.Sprintf("/sys/class/net/%s/operstate", cfg.IfaceName)
 	r, err := os.Open(sysFilePath)
 	if err != nil {

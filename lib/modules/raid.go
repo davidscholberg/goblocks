@@ -8,9 +8,10 @@ import (
 )
 
 type Raid struct {
-	BlockIndex     int `yaml:"block_index"`
-	UpdateInterval int `yaml:"update_interval"`
-	UpdateSignal   int `yaml:"update_signal"`
+	BlockIndex     int    `yaml:"block_index"`
+	UpdateInterval int    `yaml:"update_interval"`
+	Label          string `yaml:"label"`
+	UpdateSignal   int    `yaml:"update_signal"`
 }
 
 func (c Raid) GetBlockIndex() int {
@@ -30,7 +31,12 @@ func (c Raid) GetUpdateSignal() int {
 }
 
 func updateRaidBlock(b *i3barjson.Block, c BlockConfig) {
-	fullTextFmt := "R: %s"
+	cfg := c.(Raid)
+	labelSep := ""
+	if cfg.Label != "" {
+		labelSep = " "
+	}
+	fullTextFmt := fmt.Sprintf("%s%s%%s", cfg.Label, labelSep)
 	mdstatPath := "/proc/mdstat"
 	stats, err := ioutil.ReadFile(mdstatPath)
 	if err != nil {

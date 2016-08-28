@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
 	"time"
 )
@@ -8,6 +9,7 @@ import (
 type Time struct {
 	BlockIndex     int    `yaml:"block_index"`
 	UpdateInterval int    `yaml:"update_interval"`
+	Label          string `yaml:"label"`
 	UpdateSignal   int    `yaml:"update_signal"`
 	TimeFormat     string `yaml:"time_format"`
 }
@@ -30,5 +32,14 @@ func (c Time) GetUpdateSignal() int {
 
 func updateTimeBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Time)
-	b.FullText = time.Now().Format(cfg.TimeFormat)
+	labelSep := ""
+	if cfg.Label != "" {
+		labelSep = " "
+	}
+	b.FullText = fmt.Sprintf(
+		"%s%s%s",
+		cfg.Label,
+		labelSep,
+		time.Now().Format(cfg.TimeFormat),
+	)
 }

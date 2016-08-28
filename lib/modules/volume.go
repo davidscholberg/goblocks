@@ -8,9 +8,10 @@ import (
 )
 
 type Volume struct {
-	BlockIndex     int `yaml:"block_index"`
-	UpdateInterval int `yaml:"update_interval"`
-	UpdateSignal   int `yaml:"update_signal"`
+	BlockIndex     int    `yaml:"block_index"`
+	UpdateInterval int    `yaml:"update_interval"`
+	Label          string `yaml:"label"`
+	UpdateSignal   int    `yaml:"update_signal"`
 }
 
 func (c Volume) GetBlockIndex() int {
@@ -30,7 +31,12 @@ func (c Volume) GetUpdateSignal() int {
 }
 
 func updateVolumeBlock(b *i3barjson.Block, c BlockConfig) {
-	fullTextFmt := "V: %s"
+	cfg := c.(Volume)
+	labelSep := ""
+	if cfg.Label != "" {
+		labelSep = " "
+	}
+	fullTextFmt := fmt.Sprintf("%s%s%%s", cfg.Label, labelSep)
 	amixerCmd := "amixer"
 	amixerArgs := []string{"-D", "default", "get", "Master"}
 	out, err := exec.Command(amixerCmd, amixerArgs...).Output()

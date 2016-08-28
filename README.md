@@ -22,20 +22,24 @@ Goblocks configuration is specified in [YAML](http://yaml.org/). The configurati
 load:
     block_index: 1
     update_interval: 1
+    label: "L:"
     crit_load: 4
 
 interfaces:
     - block_index: 2
       update_interval: 1
+      label: "E:"
       interface_name: enp3s0
 
     - block_index: 3
       update_interval: 1
+      label: "W:"
       interface_name: wlp4s2
 
 volume:
     block_index: 4
     update_interval: 60
+    label: "V:"
     update_signal: 8
 
 time:
@@ -48,7 +52,6 @@ A full configuration example with all available block types and options can be f
 
 ### TODO
 
-* Add ability to specify block prefix in config.
 * Update ticker handling to allow for times less than a second.
 * Add cli arg support.
 * Add color support.
