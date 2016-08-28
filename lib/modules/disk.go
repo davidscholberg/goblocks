@@ -31,11 +31,7 @@ func (c Disk) GetUpdateSignal() int {
 
 func updateDiskBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Disk)
-	labelSep := ""
-	if cfg.Label != "" {
-		labelSep = " "
-	}
-	fullTextFmt := fmt.Sprintf("%s%s%%s", cfg.Label, labelSep)
+	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
 	fsList := []string{"/", "/home"}
 	var err error
 	for _, fsPath := range fsList {

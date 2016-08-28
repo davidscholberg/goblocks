@@ -32,11 +32,7 @@ func (c Interface) GetUpdateSignal() int {
 
 func updateIfaceBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Interface)
-	labelSep := ""
-	if cfg.Label != "" {
-		labelSep = " "
-	}
-	fullTextFmt := fmt.Sprintf("%s%s%%s", cfg.Label, labelSep)
+	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
 	var statusStr string
 	sysFilePath := fmt.Sprintf("/sys/class/net/%s/operstate", cfg.IfaceName)
 	r, err := os.Open(sysFilePath)

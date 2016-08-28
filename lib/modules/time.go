@@ -32,14 +32,9 @@ func (c Time) GetUpdateSignal() int {
 
 func updateTimeBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Time)
-	labelSep := ""
-	if cfg.Label != "" {
-		labelSep = " "
-	}
 	b.FullText = fmt.Sprintf(
-		"%s%s%s",
+		"%s%s",
 		cfg.Label,
-		labelSep,
 		time.Now().Format(cfg.TimeFormat),
 	)
 }

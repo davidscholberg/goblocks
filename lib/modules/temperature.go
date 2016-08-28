@@ -35,11 +35,7 @@ func (c Temperature) GetUpdateSignal() int {
 
 func updateTempBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Temperature)
-	labelSep := ""
-	if cfg.Label != "" {
-		labelSep = " "
-	}
-	fullTextFmt := fmt.Sprintf("%s%s%%s", cfg.Label, labelSep)
+	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
 	totalTemp := 0
 	procs := 0
 	sysFileNameFmt := fmt.Sprintf("%s/%%s", cfg.CpuTempPath)
@@ -77,5 +73,5 @@ func updateTempBlock(b *i3barjson.Block, c BlockConfig) {
 	} else {
 		b.Urgent = false
 	}
-	b.FullText = fmt.Sprintf("%s%s%.2f°C", cfg.Label, labelSep, avgTemp)
+	b.FullText = fmt.Sprintf("%s%.2f°C", cfg.Label, avgTemp)
 }

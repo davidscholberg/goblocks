@@ -32,11 +32,7 @@ func (c Memory) GetUpdateSignal() int {
 
 func updateMemBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Memory)
-	labelSep := ""
-	if cfg.Label != "" {
-		labelSep = " "
-	}
-	fullTextFmt := fmt.Sprintf("%s%s%%s", cfg.Label, labelSep)
+	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
 	var memAvail, memJunk int64
 	r, err := os.Open("/proc/meminfo")
 	if err != nil {

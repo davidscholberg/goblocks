@@ -22,24 +22,24 @@ Goblocks configuration is specified in [YAML](http://yaml.org/). The configurati
 load:
     block_index: 1
     update_interval: 1
-    label: "L:"
+    label: "L: "
     crit_load: 4
 
 interfaces:
     - block_index: 2
       update_interval: 1
-      label: "E:"
+      label: "E: "
       interface_name: enp3s0
 
     - block_index: 3
       update_interval: 1
-      label: "W:"
+      label: "W: "
       interface_name: wlp4s2
 
 volume:
     block_index: 4
     update_interval: 60
-    label: "V:"
+    label: "V: "
     update_signal: 8
 
 time:

@@ -32,11 +32,7 @@ func (c Raid) GetUpdateSignal() int {
 
 func updateRaidBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Raid)
-	labelSep := ""
-	if cfg.Label != "" {
-		labelSep = " "
-	}
-	fullTextFmt := fmt.Sprintf("%s%s%%s", cfg.Label, labelSep)
+	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
 	mdstatPath := "/proc/mdstat"
 	stats, err := ioutil.ReadFile(mdstatPath)
 	if err != nil {

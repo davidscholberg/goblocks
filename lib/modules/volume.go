@@ -32,11 +32,7 @@ func (c Volume) GetUpdateSignal() int {
 
 func updateVolumeBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Volume)
-	labelSep := ""
-	if cfg.Label != "" {
-		labelSep = " "
-	}
-	fullTextFmt := fmt.Sprintf("%s%s%%s", cfg.Label, labelSep)
+	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
 	amixerCmd := "amixer"
 	amixerArgs := []string{"-D", "default", "get", "Master"}
 	out, err := exec.Command(amixerCmd, amixerArgs...).Output()

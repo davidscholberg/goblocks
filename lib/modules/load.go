@@ -32,11 +32,7 @@ func (c Load) GetUpdateSignal() int {
 
 func updateLoadBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Load)
-	labelSep := ""
-	if cfg.Label != "" {
-		labelSep = " "
-	}
-	fullTextFmt := fmt.Sprintf("%s%s%%s", cfg.Label, labelSep)
+	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
 	var load float64
 	r, err := os.Open("/proc/loadavg")
 	if err != nil {
@@ -56,5 +52,5 @@ func updateLoadBlock(b *i3barjson.Block, c BlockConfig) {
 	} else {
 		b.Urgent = false
 	}
-	b.FullText = fmt.Sprintf("%s%s%.2f", cfg.Label, labelSep, load)
+	b.FullText = fmt.Sprintf("%s%.2f", cfg.Label, load)
 }
