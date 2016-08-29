@@ -8,6 +8,8 @@ The main goal of this project is to match the features of [i3blocks](https://git
 
 ### Get
 
+Gobocks requires Go version 1.7+.
+
 Fetch and build Goblocks:
 
 ```
