@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// Load represents the configuration for the system load.
 type Load struct {
 	BlockIndex     int     `yaml:"block_index"`
 	UpdateInterval int     `yaml:"update_interval"`
@@ -14,22 +15,28 @@ type Load struct {
 	CritLoad       float64 `yaml:"crit_load"`
 }
 
+// GetBlockIndex returns the block's position.
 func (c Load) GetBlockIndex() int {
 	return c.BlockIndex
 }
 
+// GetUpdateFunc returns the block's status update function.
 func (c Load) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 	return updateLoadBlock
 }
 
+// GetUpdateInterval returns the block's update interval in seconds.
 func (c Load) GetUpdateInterval() int {
 	return c.UpdateInterval
 }
 
+// GetUpdateSignal returns the block's update signal that forces an update and
+// refresh.
 func (c Load) GetUpdateSignal() int {
 	return c.UpdateSignal
 }
 
+// updateLoadBlock updates the load block status.
 func updateLoadBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Load)
 	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)

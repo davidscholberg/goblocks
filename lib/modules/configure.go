@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// BlockConfig is an interface for Block configuration structs.
 type BlockConfig interface {
 	GetBlockIndex() int
 	GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig)
@@ -14,10 +15,13 @@ type BlockConfig interface {
 	GetUpdateSignal() int
 }
 
+// GlobalConfig represents global config options.
 type GlobalConfig struct {
 	Debug bool `yaml:"debug"`
 }
 
+// GoBlock contains all functions and objects necessary to configure and update
+// a block.
 type GoBlock struct {
 	Block  i3barjson.Block
 	Config BlockConfig
@@ -25,11 +29,13 @@ type GoBlock struct {
 	Update func(b *i3barjson.Block, c BlockConfig)
 }
 
+// Config is the root configuration struct.
 type Config struct {
 	Global GlobalConfig `yaml:"global"`
 	Blocks BlockConfigs `yaml:"blocks"`
 }
 
+// BlockConfigs holds the configuration of all blocks.
 type BlockConfigs struct {
 	Disk         Disk          `yaml:"disk"`
 	Interfaces   []Interface   `yaml:"interfaces"`
@@ -41,6 +47,8 @@ type BlockConfigs struct {
 	Volume       Volume        `yaml:"volume"`
 }
 
+// GetGoBlocks initializes and returns a GoBlock slice based on the
+// given configuration.
 func GetGoBlocks(c BlockConfigs) ([]*GoBlock, error) {
 	// TODO: error handling
 	// TODO: include i3barjson.Block config in config structs
@@ -82,14 +90,22 @@ func GetGoBlocks(c BlockConfigs) ([]*GoBlock, error) {
 	return goblocks, nil
 }
 
+// SelectAction is a function type that specifies an action to perform when a
+// channel is selected on in the main program loop. The first returned bool
+// indicates whether or not Goblocks should refresh the output. The second
+// returned bool indicates whether or not Goblocks should exit the loop.
 type SelectAction func(*GoBlock) (bool, bool)
 
+// SelectCases represents the set of channels that Goblocks selects on in the
+// main program loop, as well as the functions and data to run and operate on,
+// respectively.
 type SelectCases struct {
 	Cases   []reflect.SelectCase
 	Actions []SelectAction
 	Blocks  []*GoBlock
 }
 
+// Add adds a channel, action, and GoBlock to the SelectCases object.
 func (s *SelectCases) Add(c interface{}, a SelectAction, b *GoBlock) {
 	selectCase := reflect.SelectCase{
 		Dir:  reflect.SelectRecv,
@@ -100,12 +116,17 @@ func (s *SelectCases) Add(c interface{}, a SelectAction, b *GoBlock) {
 	s.Blocks = append(s.Blocks, b)
 }
 
+// AddBlockSelectCases is a helper function to add all configured GoBlock
+// objects to SelectCases.
 func (s *SelectCases) AddBlockSelectCases(b []*GoBlock) {
 	for _, goblock := range b {
 		addBlockToSelectCase(s, goblock)
 	}
 }
 
+// AddChanSelectCase is a helper function that adds a non-GoBlock channel and
+// action to SelectCases. This can be used for signal handling and other non-
+// block specific operations.
 func (s *SelectCases) AddChanSelectCase(c interface{}, a SelectAction) {
 	s.Add(
 		c,
@@ -114,6 +135,10 @@ func (s *SelectCases) AddChanSelectCase(c interface{}, a SelectAction) {
 	)
 }
 
+// addBlockToSelectCase is a helper function to add a GoBlock to SelectCases.
+// The channel used is a time.Ticker channel set to tick according to the
+// block's configuration. The SelectAction function updates the block's status
+// but does not tell Goblocks to refresh.
 func addBlockToSelectCase(s *SelectCases, b *GoBlock) {
 	updateFunc := b.Update
 	s.Add(
@@ -126,10 +151,14 @@ func addBlockToSelectCase(s *SelectCases, b *GoBlock) {
 	)
 }
 
+// SelectActionExit is a helper function of type SelectAction that tells
+// Goblocks to exit.
 func SelectActionExit(b *GoBlock) (bool, bool) {
 	return false, true
 }
 
+// SelectActionRefresh is a helper function of type SelectAction that tells
+// Goblocks to refresh the output.
 func SelectActionRefresh(b *GoBlock) (bool, bool) {
 	return true, false
 }

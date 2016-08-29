@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// Volume represents the configuration for the volume display block.
 type Volume struct {
 	BlockIndex     int    `yaml:"block_index"`
 	UpdateInterval int    `yaml:"update_interval"`
@@ -14,22 +15,29 @@ type Volume struct {
 	UpdateSignal   int    `yaml:"update_signal"`
 }
 
+// GetBlockIndex returns the block's position.
 func (c Volume) GetBlockIndex() int {
 	return c.BlockIndex
 }
 
+// GetUpdateFunc returns the block's status update function.
 func (c Volume) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 	return updateVolumeBlock
 }
 
+// GetUpdateInterval returns the block's update interval in seconds.
 func (c Volume) GetUpdateInterval() int {
 	return c.UpdateInterval
 }
 
+// GetUpdateSignal returns the block's update signal that forces an update and
+// refresh.
 func (c Volume) GetUpdateSignal() int {
 	return c.UpdateSignal
 }
 
+// updateVolumeBlock updates the volume display block.
+// Currently, only the ALSA master channel volume is supported.
 func updateVolumeBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Volume)
 	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)

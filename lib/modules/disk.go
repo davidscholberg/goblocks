@@ -6,6 +6,7 @@ import (
 	"syscall"
 )
 
+// Disk represents the configuration for the disk block.
 type Disk struct {
 	BlockIndex     int    `yaml:"block_index"`
 	UpdateInterval int    `yaml:"update_interval"`
@@ -13,22 +14,29 @@ type Disk struct {
 	UpdateSignal   int    `yaml:"update_signal"`
 }
 
+// GetBlockIndex returns the block's position.
 func (c Disk) GetBlockIndex() int {
 	return c.BlockIndex
 }
 
+// GetUpdateFunc returns the block's status update function.
 func (c Disk) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 	return updateDiskBlock
 }
 
+// GetUpdateInterval returns the block's update interval in seconds.
 func (c Disk) GetUpdateInterval() int {
 	return c.UpdateInterval
 }
 
+// GetUpdateSignal returns the block's update signal that forces an update and
+// refresh.
 func (c Disk) GetUpdateSignal() int {
 	return c.UpdateSignal
 }
 
+// updateDiskBlock updates the status of the disk block.
+// The block displays "ok" unless one of the given filesystems are over 95%.
 func updateDiskBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Disk)
 	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)

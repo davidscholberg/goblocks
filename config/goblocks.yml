@@ -2,9 +2,9 @@
 
 # The global section contains global config options.
 
-# debug is a boolean indicating whether or not to pretty print the json output.
-
 global:
+    # debug is a boolean indicating whether or not to pretty print the json
+    # output.
     debug: False
 
 # Below is the per-block configuration.
@@ -20,12 +20,24 @@ global:
 # Each block may optionally have a label field indicating a prefix string to
 # prepend to the block's status text.
 
+# Some block types can have multiple instances, which are specified in a YAML
+# array. See the temperatures and interfaces block configs.
+
+# If a block has an update_signal field, then that block will be updated and
+# Goblocks refreshed when Goblocks receives an RTMIN signal offset by the given
+# signal number. See the volume block config.
+# For example, if update_signal is 1, then running 'pkill -RTMIN+1 goblocks'
+# will cause Goblocks to update the block and refresh.
+# The update_signal value must be 1 or greater.
+
 blocks:
+    # Only linux mdraid is supported.
     raid:
         block_index: 1
         update_interval: 1
         label: "R: "
 
+    # The disk block is an aggregate status of overall filesystem usage.
     disk:
         block_index: 2
         update_interval: 1
@@ -37,14 +49,12 @@ blocks:
         label: "L: "
         crit_load: 4
 
+    # The memory block displays available memory.
     memory:
         block_index: 4
         update_interval: 1
         label: "M: "
         crit_mem: 1
-
-# Some block types can have multiple instances, which are specified in a YAML
-# array.
 
     temperatures:
         - block_index: 5
@@ -63,23 +73,16 @@ blocks:
           label: "W: "
           interface_name: wlp4s2
 
-# If a block has an update_signal field, then that block will be updated and
-# Goblocks refreshed when Goblocks receives an RTMIN signal offset by the given
-# signal number.
-# For example, if update_signal is 1, then running 'pkill -RTMIN+1 goblocks'
-# will cause Goblocks to update the block and refresh.
-# The update_signal value must be 1 or greater.
-
+    # The volume block currently only supports the ALSA master channel volume.
     volume:
         block_index: 8
         update_interval: 60
         label: "V: "
-        update_signal: 8
-
-# The time_format value must be a string in Go's standard time format (see
-# https://golang.org/pkg/time/#pkg-constants).
+        update_signal: 1
 
     time:
         block_index: 9
         update_interval: 1
+        # The time_format value must be a string in Go's standard time format
+        # (see https://golang.org/pkg/time/#pkg-constants).
         time_format: 2006-01-02 15:04

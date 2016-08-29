@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// Temperature represents the configuration for the CPU temperature block.
 type Temperature struct {
 	BlockIndex     int     `yaml:"block_index"`
 	UpdateInterval int     `yaml:"update_interval"`
@@ -17,22 +18,29 @@ type Temperature struct {
 	CritTemp       float64 `yaml:"crit_temp"`
 }
 
+// GetBlockIndex returns the block's position.
 func (c Temperature) GetBlockIndex() int {
 	return c.BlockIndex
 }
 
+// GetUpdateFunc returns the block's status update function.
 func (c Temperature) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 	return updateTempBlock
 }
 
+// GetUpdateInterval returns the block's update interval in seconds.
 func (c Temperature) GetUpdateInterval() int {
 	return c.UpdateInterval
 }
 
+// GetUpdateSignal returns the block's update signal that forces an update and
+// refresh.
 func (c Temperature) GetUpdateSignal() int {
 	return c.UpdateSignal
 }
 
+// updateTempBlock updates the CPU temperature info.
+// The value output by the block is the average temperature of all cores.
 func updateTempBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Temperature)
 	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
