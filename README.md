@@ -56,6 +56,10 @@ blocks:
 
 A full configuration example with all available block types and options can be found at [config/goblocks.yml](config/goblocks.yml).
 
+### Contributing
+
+If you would like to see a new feature or enhancement in Goblocks, please feel free to submit an [issue](/../../issues) or [pull request](/../../pulls).
+
 ### TODO
 
 * Update ticker handling to allow for times less than a second.
