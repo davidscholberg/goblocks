@@ -44,7 +44,9 @@ func main() {
 	var selectCases modules.SelectCases
 	selectCases.AddBlockSelectCases(goblocks)
 
-	updateTicker := time.NewTicker(time.Second)
+	updateTicker := time.NewTicker(
+		time.Duration(cfg.Global.RefreshInterval * float64(time.Second)),
+	)
 	selectCases.AddChanSelectCase(
 		updateTicker.C,
 		modules.SelectActionRefresh,

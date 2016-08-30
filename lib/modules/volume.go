@@ -9,10 +9,10 @@ import (
 
 // Volume represents the configuration for the volume display block.
 type Volume struct {
-	BlockIndex     int    `yaml:"block_index"`
-	UpdateInterval int    `yaml:"update_interval"`
-	Label          string `yaml:"label"`
-	UpdateSignal   int    `yaml:"update_signal"`
+	BlockIndex     int     `yaml:"block_index"`
+	UpdateInterval float64 `yaml:"update_interval"`
+	Label          string  `yaml:"label"`
+	UpdateSignal   int     `yaml:"update_signal"`
 }
 
 // GetBlockIndex returns the block's position.
@@ -26,7 +26,7 @@ func (c Volume) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 }
 
 // GetUpdateInterval returns the block's update interval in seconds.
-func (c Volume) GetUpdateInterval() int {
+func (c Volume) GetUpdateInterval() float64 {
 	return c.UpdateInterval
 }
 

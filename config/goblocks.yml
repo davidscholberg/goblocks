@@ -6,6 +6,10 @@ global:
     # debug is a boolean indicating whether or not to pretty print the json
     # output.
     debug: False
+    # refresh_interval is a floating point number indicating the time interval
+    # in seconds between when Goblocks sends an updated status line to i3bar.
+    # Basically, it controls Goblocks' "frame rate".
+    refresh_interval: 1
 
 # Below is the per-block configuration.
 
@@ -13,8 +17,9 @@ global:
 # block_index values must start with 1 and be sequential.
 
 # Each block must have an update_interval field indicating the time interval in
-# seconds to update the block. Note that this interval does not affect the
-# refresh rate of Goblocks; it only impactes the timing in which a block's info
+# seconds between block updates. This is a floating point number, allowing for
+# fractions of a second. Note that this interval does not affect the refresh
+# rate of Goblocks' output; it only impactes the timing in which a block's info
 # gets updated.
 
 # Each block may optionally have a label field indicating a prefix string to
@@ -82,7 +87,7 @@ blocks:
 
     time:
         block_index: 9
-        update_interval: 1
+        update_interval: 0.5
         # The time_format value must be a string in Go's standard time format
         # (see https://golang.org/pkg/time/#pkg-constants).
-        time_format: 2006-01-02 15:04
+        time_format: 2006-01-02 15:04:05

@@ -23,6 +23,7 @@ Goblocks configuration is specified in [YAML](http://yaml.org/). The configurati
 ```yaml
 global:
     debug: False
+    refresh_interval: 1
 
 blocks:
     load:
@@ -46,12 +47,12 @@ blocks:
         block_index: 4
         update_interval: 60
         label: "V: "
-        update_signal: 8
+        update_signal: 1
 
     time:
         block_index: 5
-        update_interval: 1
-        time_format: 2006-01-02 15:04
+        update_interval: 0.5
+        time_format: 2006-01-02 15:04:05
 ```
 
 A full configuration example with all available block types and options can be found at [config/goblocks.yml](config/goblocks.yml).
@@ -62,7 +63,6 @@ If you would like to see a new feature or enhancement in Goblocks, please feel f
 
 ### TODO
 
-* Update ticker handling to allow for times less than a second.
 * Add battery block.
 * Add wifi block.
 * Allow disk mounts to be loaded via config for disk block.

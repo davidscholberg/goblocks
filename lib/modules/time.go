@@ -8,11 +8,11 @@ import (
 
 // Time represents the configuration for the time display block.
 type Time struct {
-	BlockIndex     int    `yaml:"block_index"`
-	UpdateInterval int    `yaml:"update_interval"`
-	Label          string `yaml:"label"`
-	UpdateSignal   int    `yaml:"update_signal"`
-	TimeFormat     string `yaml:"time_format"`
+	BlockIndex     int     `yaml:"block_index"`
+	UpdateInterval float64 `yaml:"update_interval"`
+	Label          string  `yaml:"label"`
+	UpdateSignal   int     `yaml:"update_signal"`
+	TimeFormat     string  `yaml:"time_format"`
 }
 
 // GetBlockIndex returns the block's position.
@@ -26,7 +26,7 @@ func (c Time) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 }
 
 // GetUpdateInterval returns the block's update interval in seconds.
-func (c Time) GetUpdateInterval() int {
+func (c Time) GetUpdateInterval() float64 {
 	return c.UpdateInterval
 }
 

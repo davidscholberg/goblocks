@@ -11,13 +11,14 @@ import (
 type BlockConfig interface {
 	GetBlockIndex() int
 	GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig)
-	GetUpdateInterval() int
+	GetUpdateInterval() float64
 	GetUpdateSignal() int
 }
 
 // GlobalConfig represents global config options.
 type GlobalConfig struct {
-	Debug bool `yaml:"debug"`
+	Debug           bool    `yaml:"debug"`
+	RefreshInterval float64 `yaml:"refresh_interval"`
 }
 
 // GoBlock contains all functions and objects necessary to configure and update
@@ -78,7 +79,11 @@ func GetGoBlocks(c BlockConfigs) ([]*GoBlock, error) {
 	for _, blockConfig := range blockConfigSlice {
 		blockIndex := blockConfig.GetBlockIndex()
 		updateFunc := blockConfig.GetUpdateFunc()
-		ticker := time.NewTicker(time.Second * time.Duration(blockConfig.GetUpdateInterval()))
+		ticker := time.NewTicker(
+			time.Duration(
+				blockConfig.GetUpdateInterval() * float64(time.Second),
+			),
+		)
 		goblocks[blockIndex-1] = &GoBlock{
 			i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
 			blockConfig,

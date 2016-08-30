@@ -9,7 +9,7 @@ import (
 // Memory represents the configuration for the memory block.
 type Memory struct {
 	BlockIndex     int     `yaml:"block_index"`
-	UpdateInterval int     `yaml:"update_interval"`
+	UpdateInterval float64 `yaml:"update_interval"`
 	Label          string  `yaml:"label"`
 	UpdateSignal   int     `yaml:"update_signal"`
 	CritMem        float64 `yaml:"crit_mem"`
@@ -26,7 +26,7 @@ func (c Memory) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 }
 
 // GetUpdateInterval returns the block's update interval in seconds.
-func (c Memory) GetUpdateInterval() int {
+func (c Memory) GetUpdateInterval() float64 {
 	return c.UpdateInterval
 }
 

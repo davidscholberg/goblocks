@@ -8,10 +8,10 @@ import (
 
 // Disk represents the configuration for the disk block.
 type Disk struct {
-	BlockIndex     int    `yaml:"block_index"`
-	UpdateInterval int    `yaml:"update_interval"`
-	Label          string `yaml:"label"`
-	UpdateSignal   int    `yaml:"update_signal"`
+	BlockIndex     int     `yaml:"block_index"`
+	UpdateInterval float64 `yaml:"update_interval"`
+	Label          string  `yaml:"label"`
+	UpdateSignal   int     `yaml:"update_signal"`
 }
 
 // GetBlockIndex returns the block's position.
@@ -25,7 +25,7 @@ func (c Disk) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 }
 
 // GetUpdateInterval returns the block's update interval in seconds.
-func (c Disk) GetUpdateInterval() int {
+func (c Disk) GetUpdateInterval() float64 {
 	return c.UpdateInterval
 }
 

@@ -8,11 +8,11 @@ import (
 
 // Interface represents the configuration for the network interface block.
 type Interface struct {
-	BlockIndex     int    `yaml:"block_index"`
-	UpdateInterval int    `yaml:"update_interval"`
-	Label          string `yaml:"label"`
-	UpdateSignal   int    `yaml:"update_signal"`
-	IfaceName      string `yaml:"interface_name"`
+	BlockIndex     int     `yaml:"block_index"`
+	UpdateInterval float64 `yaml:"update_interval"`
+	Label          string  `yaml:"label"`
+	UpdateSignal   int     `yaml:"update_signal"`
+	IfaceName      string  `yaml:"interface_name"`
 }
 
 // GetBlockIndex returns the block's position.
@@ -26,7 +26,7 @@ func (c Interface) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 }
 
 // GetUpdateInterval returns the block's update interval in seconds.
-func (c Interface) GetUpdateInterval() int {
+func (c Interface) GetUpdateInterval() float64 {
 	return c.UpdateInterval
 }
 

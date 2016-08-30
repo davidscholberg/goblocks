@@ -11,7 +11,7 @@ import (
 // Temperature represents the configuration for the CPU temperature block.
 type Temperature struct {
 	BlockIndex     int     `yaml:"block_index"`
-	UpdateInterval int     `yaml:"update_interval"`
+	UpdateInterval float64 `yaml:"update_interval"`
 	Label          string  `yaml:"label"`
 	UpdateSignal   int     `yaml:"update_signal"`
 	CpuTempPath    string  `yaml:"cpu_temp_path"`
@@ -29,7 +29,7 @@ func (c Temperature) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
 }
 
 // GetUpdateInterval returns the block's update interval in seconds.
-func (c Temperature) GetUpdateInterval() int {
+func (c Temperature) GetUpdateInterval() float64 {
 	return c.UpdateInterval
 }
 
