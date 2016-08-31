@@ -47,6 +47,12 @@ blocks:
         block_index: 2
         update_interval: 1
         label: "D: "
+        # filesystems is a map of strings to floating point numbers. The strings
+        # are the filesystems you want to check, and the numbers are the
+        # critical usage percentages for those filesystems.
+        filesystems:
+            /: 90
+            /home: 90
 
     load:
         block_index: 3

@@ -65,6 +65,5 @@ If you would like to see a new feature or enhancement in Goblocks, please feel f
 
 * Add battery block.
 * Add wifi block.
-* Allow disk mounts to be loaded via config for disk block.
 * Add cli arg support.
 * Add color support.
