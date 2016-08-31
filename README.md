@@ -65,5 +65,6 @@ If you would like to see a new feature or enhancement in Goblocks, please feel f
 
 * Add battery block.
 * Add wifi block.
+* Allow config to be reloaded with HUP signal.
 * Add cli arg support.
 * Add color support.
