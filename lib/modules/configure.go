@@ -3,7 +3,12 @@ package modules
 import (
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"os"
+	"os/signal"
 	"reflect"
+	"syscall"
 	"time"
 )
 
@@ -46,6 +51,26 @@ type BlockConfigs struct {
 	Temperatures []Temperature `yaml:"temperatures"`
 	Time         Time          `yaml:"time"`
 	Volume       Volume        `yaml:"volume"`
+}
+
+const confPathFmt = "%s/.config/goblocks/goblocks.yml"
+const sigrtmin = syscall.Signal(34)
+
+// GetConfig loads the Goblocks configuration object.
+func GetConfig(cfg *Config) error {
+	// TODO: set up default values
+	confPath := fmt.Sprintf(confPathFmt, os.Getenv("HOME"))
+	confStr, err := ioutil.ReadFile(confPath)
+	if err != nil {
+		return err
+	}
+
+	err = yaml.Unmarshal(confStr, cfg)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // GetGoBlocks initializes and returns a GoBlock slice based on the
@@ -105,20 +130,10 @@ type SelectAction func(*GoBlock) (bool, bool)
 // main program loop, as well as the functions and data to run and operate on,
 // respectively.
 type SelectCases struct {
-	Cases   []reflect.SelectCase
-	Actions []SelectAction
-	Blocks  []*GoBlock
-}
-
-// Add adds a channel, action, and GoBlock to the SelectCases object.
-func (s *SelectCases) Add(c interface{}, a SelectAction, b *GoBlock) {
-	selectCase := reflect.SelectCase{
-		Dir:  reflect.SelectRecv,
-		Chan: reflect.ValueOf(c),
-	}
-	s.Cases = append(s.Cases, selectCase)
-	s.Actions = append(s.Actions, a)
-	s.Blocks = append(s.Blocks, b)
+	Cases        []reflect.SelectCase
+	Actions      []SelectAction
+	Blocks       []*GoBlock
+	UpdateTicker *time.Ticker
 }
 
 // AddBlockSelectCases is a helper function to add all configured GoBlock
@@ -129,11 +144,61 @@ func (s *SelectCases) AddBlockSelectCases(b []*GoBlock) {
 	}
 }
 
-// AddChanSelectCase is a helper function that adds a non-GoBlock channel and
+// AddSignalSelectCases loads the select cases related to OS signals.
+func (s *SelectCases) AddSignalSelectCases(goblocks []*GoBlock) {
+	sigEndChan := make(chan os.Signal, 1)
+	signal.Notify(sigEndChan, syscall.SIGINT, syscall.SIGTERM)
+	s.addChanSelectCase(
+		sigEndChan,
+		SelectActionExit,
+	)
+
+	for _, goblock := range goblocks {
+		updateSignal := goblock.Config.GetUpdateSignal()
+		if updateSignal > 0 {
+			sigUpdateChan := make(chan os.Signal, 1)
+			signal.Notify(sigUpdateChan, sigrtmin+syscall.Signal(updateSignal))
+			updateFunc := goblock.Update
+			s.add(
+				sigUpdateChan,
+				func(b *GoBlock) (bool, bool) {
+					updateFunc(&b.Block, b.Config)
+					return SelectActionRefresh(b)
+				},
+				goblock,
+			)
+
+		}
+	}
+}
+
+func (s *SelectCases) AddUpdateTickerSelectCase(refreshInterval float64) {
+	updateTicker := time.NewTicker(
+		time.Duration(refreshInterval * float64(time.Second)),
+	)
+	s.addChanSelectCase(
+		updateTicker.C,
+		SelectActionRefresh,
+	)
+	s.UpdateTicker = updateTicker
+}
+
+// add adds a channel, action, and GoBlock to the SelectCases object.
+func (s *SelectCases) add(c interface{}, a SelectAction, b *GoBlock) {
+	selectCase := reflect.SelectCase{
+		Dir:  reflect.SelectRecv,
+		Chan: reflect.ValueOf(c),
+	}
+	s.Cases = append(s.Cases, selectCase)
+	s.Actions = append(s.Actions, a)
+	s.Blocks = append(s.Blocks, b)
+}
+
+// addChanSelectCase is a helper function that adds a non-GoBlock channel and
 // action to SelectCases. This can be used for signal handling and other non-
 // block specific operations.
-func (s *SelectCases) AddChanSelectCase(c interface{}, a SelectAction) {
-	s.Add(
+func (s *SelectCases) addChanSelectCase(c interface{}, a SelectAction) {
+	s.add(
 		c,
 		a,
 		nil,
@@ -146,7 +211,7 @@ func (s *SelectCases) AddChanSelectCase(c interface{}, a SelectAction) {
 // but does not tell Goblocks to refresh.
 func addBlockToSelectCase(s *SelectCases, b *GoBlock) {
 	updateFunc := b.Update
-	s.Add(
+	s.add(
 		b.Ticker.C,
 		func(b *GoBlock) (bool, bool) {
 			updateFunc(&b.Block, b.Config)
