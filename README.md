@@ -66,5 +66,6 @@ If you would like to see a new feature or enhancement in Goblocks, please feel f
 * Add battery block.
 * Add wifi block.
 * Allow config to be reloaded with HUP signal.
+* Only send update to i3bar if a block has updated within the update time interval.
 * Add cli arg support.
 * Add color support.
