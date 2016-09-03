@@ -221,6 +221,41 @@ func addBlockToSelectCase(s *SelectCases, b *GoBlock) {
 	)
 }
 
+// StopTickers stops all tickers in the SelectCases object.
+func (s *SelectCases) StopTickers() {
+	for _, goblock := range s.Blocks {
+		if goblock != nil {
+			goblock.Ticker.Stop()
+		}
+	}
+	s.UpdateTicker.Stop()
+}
+
+// Init initializes the configuration, SelectCases, and StatusLine
+func Init(cfg *Config, selectCases *SelectCases, statusLine *i3barjson.StatusLine) error {
+	err := GetConfig(cfg)
+	if err != nil {
+		return err
+	}
+
+	goblocks, err := GetGoBlocks(cfg.Blocks)
+	if err != nil {
+		return err
+	}
+
+	selectCases.AddBlockSelectCases(goblocks)
+	selectCases.AddSignalSelectCases(goblocks)
+	selectCases.AddUpdateTickerSelectCase(cfg.Global.RefreshInterval)
+
+	for _, goblock := range goblocks {
+		*statusLine = append(*statusLine, &goblock.Block)
+		// update block so it's ready for first run
+		goblock.Update(&goblock.Block, goblock.Config)
+	}
+
+	return nil
+}
+
 // SelectActionExit is a helper function of type SelectAction that tells
 // Goblocks to exit.
 func SelectActionExit(b *GoBlock) (bool, bool) {

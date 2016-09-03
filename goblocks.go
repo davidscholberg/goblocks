@@ -10,22 +10,13 @@ import (
 
 func main() {
 	var cfg modules.Config
-	err := modules.GetConfig(&cfg)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s", err)
-		return
-	}
-
-	goblocks, err := modules.GetGoBlocks(cfg.Blocks)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s", err)
-		return
-	}
-
 	var selectCases modules.SelectCases
-	selectCases.AddBlockSelectCases(goblocks)
-	selectCases.AddSignalSelectCases(goblocks)
-	selectCases.AddUpdateTickerSelectCase(cfg.Global.RefreshInterval)
+	var statusLine i3barjson.StatusLine
+	err := modules.Init(&cfg, &selectCases, &statusLine)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		return
+	}
 
 	h := i3barjson.Header{Version: 1}
 	err = i3barjson.Init(os.Stdout, nil, h, cfg.Global.Debug)
@@ -34,14 +25,7 @@ func main() {
 		return
 	}
 
-	var statusLine i3barjson.StatusLine
-	for _, goblock := range goblocks {
-		statusLine = append(statusLine, &goblock.Block)
-		// update block so it's ready for first run
-		goblock.Update(&goblock.Block, goblock.Config)
-	}
-
-	// send the first statusline
+	// send the first statusLine
 	err = i3barjson.Update(statusLine)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
@@ -64,10 +48,7 @@ func main() {
 		}
 	}
 
-	for _, goblock := range goblocks {
-		goblock.Ticker.Stop()
-	}
-	selectCases.UpdateTicker.Stop()
+	selectCases.StopTickers()
 
 	fmt.Println("\ndone")
 }
