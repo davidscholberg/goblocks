@@ -50,5 +50,5 @@ func main() {
 
 	selectCases.StopTickers()
 
-	fmt.Println("\ndone")
+	fmt.Println("")
 }
