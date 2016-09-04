@@ -54,7 +54,6 @@ type BlockConfigs struct {
 }
 
 const confPathFmt = "%s/.config/goblocks/goblocks.yml"
-const sigrtmin = syscall.Signal(34)
 
 // GetConfig loads the Goblocks configuration object.
 func GetConfig(cfg *Config) error {
@@ -120,12 +119,6 @@ func GetGoBlocks(c BlockConfigs) ([]*GoBlock, error) {
 	return goblocks, nil
 }
 
-// SelectAction is a function type that specifies an action to perform when a
-// channel is selected on in the main program loop. The first returned bool
-// indicates whether or not Goblocks should refresh the output. The second
-// returned bool indicates whether or not Goblocks should exit the loop.
-type SelectAction func(*GoBlock) (bool, bool)
-
 // SelectCases represents the set of channels that Goblocks selects on in the
 // main program loop, as well as the functions and data to run and operate on,
 // respectively.
@@ -144,8 +137,17 @@ func (s *SelectCases) AddBlockSelectCases(b []*GoBlock) {
 	}
 }
 
+const sigrtmin = syscall.Signal(34)
+
 // AddSignalSelectCases loads the select cases related to OS signals.
 func (s *SelectCases) AddSignalSelectCases(goblocks []*GoBlock) {
+	sigReloadChan := make(chan os.Signal, 1)
+	signal.Notify(sigReloadChan, syscall.SIGHUP)
+	s.addChanSelectCase(
+		sigReloadChan,
+		SelectActionReload,
+	)
+
 	sigEndChan := make(chan os.Signal, 1)
 	signal.Notify(sigEndChan, syscall.SIGINT, syscall.SIGTERM)
 	s.addChanSelectCase(
@@ -161,7 +163,7 @@ func (s *SelectCases) AddSignalSelectCases(goblocks []*GoBlock) {
 			updateFunc := goblock.Update
 			s.add(
 				sigUpdateChan,
-				func(b *GoBlock) (bool, bool) {
+				func(b *GoBlock) (bool, bool, bool) {
 					updateFunc(&b.Block, b.Config)
 					return SelectActionRefresh(b)
 				},
@@ -172,6 +174,8 @@ func (s *SelectCases) AddSignalSelectCases(goblocks []*GoBlock) {
 	}
 }
 
+// AddUpdateTickerSelectCase is a helper function to add the update ticker chan
+// to SelectCases. The ticker will tick at the given refreshInterval.
 func (s *SelectCases) AddUpdateTickerSelectCase(refreshInterval float64) {
 	updateTicker := time.NewTicker(
 		time.Duration(refreshInterval * float64(time.Second)),
@@ -213,22 +217,23 @@ func addBlockToSelectCase(s *SelectCases, b *GoBlock) {
 	updateFunc := b.Update
 	s.add(
 		b.Ticker.C,
-		func(b *GoBlock) (bool, bool) {
+		func(b *GoBlock) (bool, bool, bool) {
 			updateFunc(&b.Block, b.Config)
-			return false, false
+			return false, false, false
 		},
 		b,
 	)
 }
 
-// StopTickers stops all tickers in the SelectCases object.
-func (s *SelectCases) StopTickers() {
+// Reset stops all tickers and resets all signal handlers.
+func (s *SelectCases) Reset() {
 	for _, goblock := range s.Blocks {
 		if goblock != nil {
 			goblock.Ticker.Stop()
 		}
 	}
 	s.UpdateTicker.Stop()
+	signal.Reset()
 }
 
 // Init initializes the configuration, SelectCases, and StatusLine
@@ -256,14 +261,28 @@ func Init(cfg *Config, selectCases *SelectCases, statusLine *i3barjson.StatusLin
 	return nil
 }
 
+// SelectAction is a function type that specifies an action to perform when a
+// channel is selected on in the main program loop. The first returned bool
+// indicates whether or not Goblocks should refresh the output. The second
+// returned bool indicates whether or not to reload the Goblocks configuration.
+// The third returned bool indicates whether or not Goblocks should exit the
+// loop.
+type SelectAction func(*GoBlock) (bool, bool, bool)
+
 // SelectActionExit is a helper function of type SelectAction that tells
 // Goblocks to exit.
-func SelectActionExit(b *GoBlock) (bool, bool) {
-	return false, true
+func SelectActionExit(b *GoBlock) (bool, bool, bool) {
+	return false, false, true
 }
 
 // SelectActionRefresh is a helper function of type SelectAction that tells
 // Goblocks to refresh the output.
-func SelectActionRefresh(b *GoBlock) (bool, bool) {
-	return true, false
+func SelectActionRefresh(b *GoBlock) (bool, bool, bool) {
+	return true, false, false
+}
+
+// SelectActionReload is a helper function of type SelectAction that tells
+// Goblocks to reload the configuration.
+func SelectActionReload(b *GoBlock) (bool, bool, bool) {
+	return false, true, false
 }

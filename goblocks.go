@@ -35,7 +35,7 @@ func main() {
 	for {
 		// select on all chans
 		i, _, _ := reflect.Select(selectCases.Cases)
-		refresh, exit := selectCases.Actions[i](selectCases.Blocks[i])
+		refresh, reload, exit := selectCases.Actions[i](selectCases.Blocks[i])
 		if exit {
 			break
 		}
@@ -45,10 +45,23 @@ func main() {
 				fmt.Fprintf(os.Stderr, "%s", err)
 				break
 			}
+		} else if reload {
+			selectCases.Reset()
+			cfg = modules.Config{}
+			selectCases = modules.SelectCases{}
+			statusLine = nil
+			err = modules.Init(&cfg, &selectCases, &statusLine)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%s", err)
+				break
+			}
+			err = i3barjson.Update(statusLine)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%s", err)
+				break
+			}
 		}
 	}
-
-	selectCases.StopTickers()
 
 	fmt.Println("")
 }
