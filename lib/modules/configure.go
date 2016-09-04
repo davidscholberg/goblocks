@@ -12,22 +12,8 @@ import (
 	"time"
 )
 
-// BlockConfig is an interface for Block configuration structs.
-type BlockConfig interface {
-	GetBlockIndex() int
-	GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig)
-	GetUpdateInterval() float64
-	GetUpdateSignal() int
-}
-
-// GlobalConfig represents global config options.
-type GlobalConfig struct {
-	Debug           bool    `yaml:"debug"`
-	RefreshInterval float64 `yaml:"refresh_interval"`
-}
-
 // Block contains all functions and objects necessary to configure and update
-// a block.
+// a single status block.
 type Block struct {
 	I3barBlock i3barjson.Block
 	Config     BlockConfig
@@ -41,7 +27,23 @@ type Config struct {
 	Blocks BlockConfigs `yaml:"blocks"`
 }
 
-// BlockConfigs holds the configuration of all blocks.
+// GlobalConfig represents global config options.
+type GlobalConfig struct {
+	Debug           bool    `yaml:"debug"`
+	RefreshInterval float64 `yaml:"refresh_interval"`
+}
+
+// BlockConfig is an interface for Block configuration structs.
+type BlockConfig interface {
+	GetBlockIndex() int
+	GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig)
+	GetUpdateInterval() float64
+	GetUpdateSignal() int
+}
+
+// BlockConfigs holds the configuration of all status blocks. Each field must be
+// either a struct implementing the BlockConfig interface or a slice of structs
+// implementing the BlockConfig interface.
 type BlockConfigs struct {
 	Disk         Disk          `yaml:"disk"`
 	Interfaces   []Interface   `yaml:"interfaces"`
