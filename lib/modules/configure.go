@@ -26,13 +26,13 @@ type GlobalConfig struct {
 	RefreshInterval float64 `yaml:"refresh_interval"`
 }
 
-// GoBlock contains all functions and objects necessary to configure and update
+// Block contains all functions and objects necessary to configure and update
 // a block.
-type GoBlock struct {
-	Block  i3barjson.Block
-	Config BlockConfig
-	Ticker *time.Ticker
-	Update func(b *i3barjson.Block, c BlockConfig)
+type Block struct {
+	I3barBlock i3barjson.Block
+	Config     BlockConfig
+	Ticker     *time.Ticker
+	Update     func(b *i3barjson.Block, c BlockConfig)
 }
 
 // Config is the root configuration struct.
@@ -72,9 +72,9 @@ func GetConfig(cfg *Config) error {
 	return nil
 }
 
-// GetGoBlocks initializes and returns a GoBlock slice based on the
+// GetBlocks initializes and returns a Block slice based on the
 // given configuration.
-func GetGoBlocks(c BlockConfigs) ([]*GoBlock, error) {
+func GetBlocks(c BlockConfigs) ([]*Block, error) {
 	// TODO: error handling
 	// TODO: include i3barjson.Block config in config structs
 	var blockConfigSlice []BlockConfig
@@ -99,7 +99,7 @@ func GetGoBlocks(c BlockConfigs) ([]*GoBlock, error) {
 		}
 	}
 
-	goblocks := make([]*GoBlock, len(blockConfigSlice))
+	blocks := make([]*Block, len(blockConfigSlice))
 	for _, blockConfig := range blockConfigSlice {
 		blockIndex := blockConfig.GetBlockIndex()
 		updateFunc := blockConfig.GetUpdateFunc()
@@ -108,7 +108,7 @@ func GetGoBlocks(c BlockConfigs) ([]*GoBlock, error) {
 				blockConfig.GetUpdateInterval() * float64(time.Second),
 			),
 		)
-		goblocks[blockIndex-1] = &GoBlock{
+		blocks[blockIndex-1] = &Block{
 			i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
 			blockConfig,
 			ticker,
@@ -116,7 +116,7 @@ func GetGoBlocks(c BlockConfigs) ([]*GoBlock, error) {
 		}
 	}
 
-	return goblocks, nil
+	return blocks, nil
 }
 
 // SelectCases represents the set of channels that Goblocks selects on in the
@@ -125,22 +125,22 @@ func GetGoBlocks(c BlockConfigs) ([]*GoBlock, error) {
 type SelectCases struct {
 	Cases        []reflect.SelectCase
 	Actions      []SelectAction
-	Blocks       []*GoBlock
+	Blocks       []*Block
 	UpdateTicker *time.Ticker
 }
 
-// AddBlockSelectCases is a helper function to add all configured GoBlock
+// AddBlockSelectCases is a helper function to add all configured Block
 // objects to SelectCases.
-func (s *SelectCases) AddBlockSelectCases(b []*GoBlock) {
-	for _, goblock := range b {
-		addBlockToSelectCase(s, goblock)
+func (s *SelectCases) AddBlockSelectCases(b []*Block) {
+	for _, block := range b {
+		addBlockToSelectCase(s, block)
 	}
 }
 
 const sigrtmin = syscall.Signal(34)
 
 // AddSignalSelectCases loads the select cases related to OS signals.
-func (s *SelectCases) AddSignalSelectCases(goblocks []*GoBlock) {
+func (s *SelectCases) AddSignalSelectCases(blocks []*Block) {
 	sigReloadChan := make(chan os.Signal, 1)
 	signal.Notify(sigReloadChan, syscall.SIGHUP)
 	s.addChanSelectCase(
@@ -155,19 +155,19 @@ func (s *SelectCases) AddSignalSelectCases(goblocks []*GoBlock) {
 		SelectActionExit,
 	)
 
-	for _, goblock := range goblocks {
-		updateSignal := goblock.Config.GetUpdateSignal()
+	for _, block := range blocks {
+		updateSignal := block.Config.GetUpdateSignal()
 		if updateSignal > 0 {
 			sigUpdateChan := make(chan os.Signal, 1)
 			signal.Notify(sigUpdateChan, sigrtmin+syscall.Signal(updateSignal))
-			updateFunc := goblock.Update
+			updateFunc := block.Update
 			s.add(
 				sigUpdateChan,
-				func(b *GoBlock) (bool, bool, bool) {
-					updateFunc(&b.Block, b.Config)
+				func(b *Block) (bool, bool, bool) {
+					updateFunc(&b.I3barBlock, b.Config)
 					return SelectActionRefresh(b)
 				},
-				goblock,
+				block,
 			)
 
 		}
@@ -187,8 +187,8 @@ func (s *SelectCases) AddUpdateTickerSelectCase(refreshInterval float64) {
 	s.UpdateTicker = updateTicker
 }
 
-// add adds a channel, action, and GoBlock to the SelectCases object.
-func (s *SelectCases) add(c interface{}, a SelectAction, b *GoBlock) {
+// add adds a channel, action, and Block to the SelectCases object.
+func (s *SelectCases) add(c interface{}, a SelectAction, b *Block) {
 	selectCase := reflect.SelectCase{
 		Dir:  reflect.SelectRecv,
 		Chan: reflect.ValueOf(c),
@@ -198,7 +198,7 @@ func (s *SelectCases) add(c interface{}, a SelectAction, b *GoBlock) {
 	s.Blocks = append(s.Blocks, b)
 }
 
-// addChanSelectCase is a helper function that adds a non-GoBlock channel and
+// addChanSelectCase is a helper function that adds a non-Block channel and
 // action to SelectCases. This can be used for signal handling and other non-
 // block specific operations.
 func (s *SelectCases) addChanSelectCase(c interface{}, a SelectAction) {
@@ -209,16 +209,16 @@ func (s *SelectCases) addChanSelectCase(c interface{}, a SelectAction) {
 	)
 }
 
-// addBlockToSelectCase is a helper function to add a GoBlock to SelectCases.
+// addBlockToSelectCase is a helper function to add a Block to SelectCases.
 // The channel used is a time.Ticker channel set to tick according to the
 // block's configuration. The SelectAction function updates the block's status
 // but does not tell Goblocks to refresh.
-func addBlockToSelectCase(s *SelectCases, b *GoBlock) {
+func addBlockToSelectCase(s *SelectCases, b *Block) {
 	updateFunc := b.Update
 	s.add(
 		b.Ticker.C,
-		func(b *GoBlock) (bool, bool, bool) {
-			updateFunc(&b.Block, b.Config)
+		func(b *Block) (bool, bool, bool) {
+			updateFunc(&b.I3barBlock, b.Config)
 			return false, false, false
 		},
 		b,
@@ -227,9 +227,9 @@ func addBlockToSelectCase(s *SelectCases, b *GoBlock) {
 
 // Reset stops all tickers and resets all signal handlers.
 func (s *SelectCases) Reset() {
-	for _, goblock := range s.Blocks {
-		if goblock != nil {
-			goblock.Ticker.Stop()
+	for _, block := range s.Blocks {
+		if block != nil {
+			block.Ticker.Stop()
 		}
 	}
 	s.UpdateTicker.Stop()
@@ -243,19 +243,19 @@ func Init(cfg *Config, selectCases *SelectCases, statusLine *i3barjson.StatusLin
 		return err
 	}
 
-	goblocks, err := GetGoBlocks(cfg.Blocks)
+	blocks, err := GetBlocks(cfg.Blocks)
 	if err != nil {
 		return err
 	}
 
-	selectCases.AddBlockSelectCases(goblocks)
-	selectCases.AddSignalSelectCases(goblocks)
+	selectCases.AddBlockSelectCases(blocks)
+	selectCases.AddSignalSelectCases(blocks)
 	selectCases.AddUpdateTickerSelectCase(cfg.Global.RefreshInterval)
 
-	for _, goblock := range goblocks {
-		*statusLine = append(*statusLine, &goblock.Block)
+	for _, block := range blocks {
+		*statusLine = append(*statusLine, &block.I3barBlock)
 		// update block so it's ready for first run
-		goblock.Update(&goblock.Block, goblock.Config)
+		block.Update(&block.I3barBlock, block.Config)
 	}
 
 	return nil
@@ -267,22 +267,22 @@ func Init(cfg *Config, selectCases *SelectCases, statusLine *i3barjson.StatusLin
 // returned bool indicates whether or not to reload the Goblocks configuration.
 // The third returned bool indicates whether or not Goblocks should exit the
 // loop.
-type SelectAction func(*GoBlock) (bool, bool, bool)
+type SelectAction func(*Block) (bool, bool, bool)
 
 // SelectActionExit is a helper function of type SelectAction that tells
 // Goblocks to exit.
-func SelectActionExit(b *GoBlock) (bool, bool, bool) {
+func SelectActionExit(b *Block) (bool, bool, bool) {
 	return false, false, true
 }
 
 // SelectActionRefresh is a helper function of type SelectAction that tells
 // Goblocks to refresh the output.
-func SelectActionRefresh(b *GoBlock) (bool, bool, bool) {
+func SelectActionRefresh(b *Block) (bool, bool, bool) {
 	return true, false, false
 }
 
 // SelectActionReload is a helper function of type SelectAction that tells
 // Goblocks to reload the configuration.
-func SelectActionReload(b *GoBlock) (bool, bool, bool) {
+func SelectActionReload(b *Block) (bool, bool, bool) {
 	return false, true, false
 }
