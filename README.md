@@ -41,7 +41,7 @@ Goblocks configuration is specified in [YAML](http://yaml.org/). The configurati
 
 To use Goblocks in your i3bar, add the Goblocks binary to the [bar section of your i3 config](https://i3wm.org/docs/userguide.html#_configuring_i3bar). Note that if `$GOPATH/bin/` is not in your `$PATH` variable, then you'll have to specify the full path to the Goblocks binary.
 
-You can reload Goblocks' configuration without restarting i3 by sending the HUP signal to Goblocks:
+You can reload Goblocks' configuration without restarting i3 by sending the `HUP` signal to Goblocks:
 
 ```bash
 pkill -HUP goblocks
