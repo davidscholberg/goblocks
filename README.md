@@ -4,7 +4,7 @@ Goblocks is an [i3status](https://i3wm.org/i3status/) replacement written in [Go
 
 The main goal of this project is to match most of the features of [i3blocks](https://github.com/vivien/i3blocks) while keeping all of the modules written in pure Go. This will keep Goblocks fast and lightweight, allowing the user to configure Goblocks with a very high update frequency without fear of taking up excessive system resource and battery.
 
-Features of Goblocks include:
+### Features
 
 * Status indicators for:
     * RAID status (mdraid only)
@@ -20,9 +20,7 @@ Features of Goblocks include:
 * Ability to reload the configuration by sending the HUP signal (e.g. `pkill -HUP goblocks`).
 * Debug option to [pretty-print](https://en.wikipedia.org/wiki/Prettyprint) Goblocks' JSON output.
 
-**WARNING:** Goblocks is still somewhat rough around the edges. See the [TODO](#todo) list.
-
-### Get
+### Install
 
 Gobocks requires Go version 1.7+.
 
