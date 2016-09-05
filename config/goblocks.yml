@@ -85,8 +85,15 @@ blocks:
           label: "W: "
           interface_name: wlp4s2
 
-    batteries:
+    wifi:
         - block_index: 8
+          update_interval: 1
+          label: "W: "
+          interface_name: wlp3s0
+          crit_quality: 30
+
+    batteries:
+        - block_index: 9
           update_interval: 1
           label: "B0: "
           # The battery number can be found in /sys/class/power_supply/
@@ -95,13 +102,13 @@ blocks:
 
     # The volume block currently only supports the ALSA master channel volume.
     volume:
-        block_index: 9
+        block_index: 10
         update_interval: 60
         label: "V: "
         update_signal: 1
 
     time:
-        block_index: 10
+        block_index: 11
         update_interval: 0.5
         # The time_format value must be a string in Go's standard time format
         # (see https://golang.org/pkg/time/#pkg-constants).

@@ -13,7 +13,8 @@ The main goal of this project is to match most of the features of [i3blocks](htt
     * memory availability
     * CPU temperature
     * network interfaces
-    * batteries
+    * wifi signal strength
+    * battery level
     * volume (ALSA only)
     * date/time
 * Configuration in [YAML](http://yaml.org/) format (see [config/goblocks.yml](config/goblocks.yml)).
@@ -56,6 +57,5 @@ If you would like to see a new feature or enhancement in Goblocks, please feel f
 
 ### TODO
 
-* Add wifi block.
 * Add cli arg support.
 * Add color support.

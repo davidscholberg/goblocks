@@ -53,6 +53,7 @@ type BlockConfigs struct {
 	Temperatures []Temperature `yaml:"temperatures"`
 	Time         Time          `yaml:"time"`
 	Volume       Volume        `yaml:"volume"`
+	Wifi         []Wifi        `yaml:"wifi"`
 }
 
 const confPathFmt = "%s/.config/goblocks/goblocks.yml"
