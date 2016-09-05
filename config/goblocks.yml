@@ -4,7 +4,8 @@
 
 global:
     # debug is a boolean indicating whether or not to pretty print the json
-    # output.
+    # output. Note that this setting requires a restart in order to take
+    # effect.
     debug: False
     # refresh_interval is a floating point number indicating the time interval
     # in seconds between when Goblocks sends an updated status line to i3bar.
