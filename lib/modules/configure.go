@@ -44,6 +44,7 @@ type BlockConfig interface {
 // either a struct implementing the BlockConfig interface or a slice of structs
 // implementing the BlockConfig interface.
 type BlockConfigs struct {
+	Batteries    []Battery     `yaml:"batteries"`
 	Disk         Disk          `yaml:"disk"`
 	Interfaces   []Interface   `yaml:"interfaces"`
 	Load         Load          `yaml:"load"`
