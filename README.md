@@ -58,6 +58,5 @@ If you would like to see a new feature or enhancement in Goblocks, please feel f
 
 * Add battery block.
 * Add wifi block.
-* Only send update to i3bar if a block has updated within the update time interval.
 * Add cli arg support.
 * Add color support.
