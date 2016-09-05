@@ -149,7 +149,7 @@ func (s *SelectCases) AddSignalSelectCases(blocks []*Block) {
 			updateFunc := block.Update
 			s.add(
 				sigUpdateChan,
-				func(b *Block) (bool, bool, bool) {
+				func(b *Block) SelectReturn {
 					updateFunc(&b.I3barBlock, b.Config)
 					return SelectActionRefresh(b)
 				},
@@ -190,38 +190,49 @@ func addBlockToSelectCase(s *SelectCases, b *Block, c <-chan time.Time) {
 	updateFunc := b.Update
 	s.add(
 		c,
-		func(b *Block) (bool, bool, bool) {
+		func(b *Block) SelectReturn {
 			updateFunc(&b.I3barBlock, b.Config)
-			return false, false, false
+			return SelectActionNoop(b)
 		},
 		b,
 	)
 }
 
-// SelectAction is a function type that specifies an action to perform when a
-// channel is selected on in the main program loop. The first returned bool
-// indicates whether or not Goblocks should refresh the output. The second
-// returned bool indicates whether or not to reload the Goblocks configuration.
-// The third returned bool indicates whether or not Goblocks should exit the
-// loop.
-type SelectAction func(*Block) (bool, bool, bool)
+// SelectAction is a function type that performs an action when a channel is
+// selected on in the main program loop. The return value indicates some action
+// for the caller to take.
+type SelectAction func(*Block) SelectReturn
+
+// SelectReturn is returned by a SelectAction type function and tells the caller
+// a certain action to take.
+type SelectReturn struct {
+	Refresh bool
+	Reload  bool
+	Exit    bool
+}
 
 // SelectActionExit is a helper function of type SelectAction that tells
 // Goblocks to exit.
-func SelectActionExit(b *Block) (bool, bool, bool) {
-	return false, false, true
+func SelectActionExit(b *Block) SelectReturn {
+	return SelectReturn{Exit: true}
 }
 
 // SelectActionRefresh is a helper function of type SelectAction that tells
 // Goblocks to refresh the output.
-func SelectActionRefresh(b *Block) (bool, bool, bool) {
-	return true, false, false
+func SelectActionRefresh(b *Block) SelectReturn {
+	return SelectReturn{Refresh: true}
 }
 
 // SelectActionReload is a helper function of type SelectAction that tells
 // Goblocks to reload the configuration.
-func SelectActionReload(b *Block) (bool, bool, bool) {
-	return false, true, false
+func SelectActionReload(b *Block) SelectReturn {
+	return SelectReturn{Reload: true}
+}
+
+// SelectActionNoop is a helper function of type SelectAction that tells
+// Goblocks to not perform any SelectReturn actions.
+func SelectActionNoop(b *Block) SelectReturn {
+	return SelectReturn{}
 }
 
 // Goblocks contains all configuration and runtime data needed for the

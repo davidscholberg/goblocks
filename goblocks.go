@@ -32,17 +32,17 @@ func main() {
 	for {
 		// select on all chans
 		i, _, _ := reflect.Select(gb.SelectCases.Cases)
-		refresh, reload, exit := gb.SelectCases.Actions[i](gb.SelectCases.Blocks[i])
-		if exit {
+		selectReturn := gb.SelectCases.Actions[i](gb.SelectCases.Blocks[i])
+		if selectReturn.Exit {
 			break
 		}
-		if refresh {
+		if selectReturn.Refresh {
 			err = i3barjson.Update(gb.StatusLine)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%s", err)
 				break
 			}
-		} else if reload {
+		} else if selectReturn.Reload {
 			gb.Reset()
 			gb, err = modules.NewGoblocks()
 			if err != nil {
