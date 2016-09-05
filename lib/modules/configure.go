@@ -238,31 +238,6 @@ func (s *SelectCases) Reset() {
 	signal.Reset()
 }
 
-// Init initializes the configuration, SelectCases, and StatusLine
-func Init(cfg *Config, selectCases *SelectCases, statusLine *i3barjson.StatusLine) error {
-	err := GetConfig(cfg)
-	if err != nil {
-		return err
-	}
-
-	blocks, err := GetBlocks(cfg.Blocks)
-	if err != nil {
-		return err
-	}
-
-	selectCases.AddBlockSelectCases(blocks)
-	selectCases.AddSignalSelectCases(blocks)
-	selectCases.AddUpdateTickerSelectCase(cfg.Global.RefreshInterval)
-
-	for _, block := range blocks {
-		*statusLine = append(*statusLine, &block.I3barBlock)
-		// update block so it's ready for first run
-		block.Update(&block.I3barBlock, block.Config)
-	}
-
-	return nil
-}
-
 // SelectAction is a function type that specifies an action to perform when a
 // channel is selected on in the main program loop. The first returned bool
 // indicates whether or not Goblocks should refresh the output. The second
@@ -287,4 +262,40 @@ func SelectActionRefresh(b *Block) (bool, bool, bool) {
 // Goblocks to reload the configuration.
 func SelectActionReload(b *Block) (bool, bool, bool) {
 	return false, true, false
+}
+
+// Goblocks contains all configuration and runtime data needed for the
+// application.
+type Goblocks struct {
+	Cfg         Config
+	SelectCases SelectCases
+	Tickers     []*time.Ticker
+	StatusLine  i3barjson.StatusLine
+}
+
+// NewGoblocks returns a Goblocks instance with all configuration and runtime
+// data loaded in.
+func NewGoblocks() (*Goblocks, error) {
+	gb := Goblocks{}
+	err := GetConfig(&gb.Cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	blocks, err := GetBlocks(gb.Cfg.Blocks)
+	if err != nil {
+		return nil, err
+	}
+
+	gb.SelectCases.AddBlockSelectCases(blocks)
+	gb.SelectCases.AddSignalSelectCases(blocks)
+	gb.SelectCases.AddUpdateTickerSelectCase(gb.Cfg.Global.RefreshInterval)
+
+	for _, block := range blocks {
+		gb.StatusLine = append(gb.StatusLine, &block.I3barBlock)
+		// update block so it's ready for first run
+		block.Update(&block.I3barBlock, block.Config)
+	}
+
+	return &gb, nil
 }

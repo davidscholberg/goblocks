@@ -9,24 +9,21 @@ import (
 )
 
 func main() {
-	var cfg modules.Config
-	var selectCases modules.SelectCases
-	var statusLine i3barjson.StatusLine
-	err := modules.Init(&cfg, &selectCases, &statusLine)
+	gb, err := modules.NewGoblocks()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
 		return
 	}
 
 	h := i3barjson.Header{Version: 1}
-	err = i3barjson.Init(os.Stdout, nil, h, cfg.Global.Debug)
+	err = i3barjson.Init(os.Stdout, nil, h, gb.Cfg.Global.Debug)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
 		return
 	}
 
 	// send the first statusLine
-	err = i3barjson.Update(statusLine)
+	err = i3barjson.Update(gb.StatusLine)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
 		return
@@ -34,28 +31,25 @@ func main() {
 
 	for {
 		// select on all chans
-		i, _, _ := reflect.Select(selectCases.Cases)
-		refresh, reload, exit := selectCases.Actions[i](selectCases.Blocks[i])
+		i, _, _ := reflect.Select(gb.SelectCases.Cases)
+		refresh, reload, exit := gb.SelectCases.Actions[i](gb.SelectCases.Blocks[i])
 		if exit {
 			break
 		}
 		if refresh {
-			err = i3barjson.Update(statusLine)
+			err = i3barjson.Update(gb.StatusLine)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%s", err)
 				break
 			}
 		} else if reload {
-			selectCases.Reset()
-			cfg = modules.Config{}
-			selectCases = modules.SelectCases{}
-			statusLine = nil
-			err = modules.Init(&cfg, &selectCases, &statusLine)
+			gb.SelectCases.Reset()
+			gb, err = modules.NewGoblocks()
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%s", err)
 				break
 			}
-			err = i3barjson.Update(statusLine)
+			err = i3barjson.Update(gb.StatusLine)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%s", err)
 				break
