@@ -17,7 +17,6 @@ import (
 type Block struct {
 	I3barBlock i3barjson.Block
 	Config     BlockConfig
-	Ticker     *time.Ticker
 	Update     func(b *i3barjson.Block, c BlockConfig)
 }
 
@@ -105,15 +104,9 @@ func GetBlocks(c BlockConfigs) ([]*Block, error) {
 	for _, blockConfig := range blockConfigSlice {
 		blockIndex := blockConfig.GetBlockIndex()
 		updateFunc := blockConfig.GetUpdateFunc()
-		ticker := time.NewTicker(
-			time.Duration(
-				blockConfig.GetUpdateInterval() * float64(time.Second),
-			),
-		)
 		blocks[blockIndex-1] = &Block{
 			i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
 			blockConfig,
-			ticker,
 			updateFunc,
 		}
 	}
@@ -125,18 +118,9 @@ func GetBlocks(c BlockConfigs) ([]*Block, error) {
 // main program loop, as well as the functions and data to run and operate on,
 // respectively.
 type SelectCases struct {
-	Cases        []reflect.SelectCase
-	Actions      []SelectAction
-	Blocks       []*Block
-	UpdateTicker *time.Ticker
-}
-
-// AddBlockSelectCases is a helper function to add all configured Block
-// objects to SelectCases.
-func (s *SelectCases) AddBlockSelectCases(b []*Block) {
-	for _, block := range b {
-		addBlockToSelectCase(s, block)
-	}
+	Cases   []reflect.SelectCase
+	Actions []SelectAction
+	Blocks  []*Block
 }
 
 const sigrtmin = syscall.Signal(34)
@@ -176,19 +160,6 @@ func (s *SelectCases) AddSignalSelectCases(blocks []*Block) {
 	}
 }
 
-// AddUpdateTickerSelectCase is a helper function to add the update ticker chan
-// to SelectCases. The ticker will tick at the given refreshInterval.
-func (s *SelectCases) AddUpdateTickerSelectCase(refreshInterval float64) {
-	updateTicker := time.NewTicker(
-		time.Duration(refreshInterval * float64(time.Second)),
-	)
-	s.addChanSelectCase(
-		updateTicker.C,
-		SelectActionRefresh,
-	)
-	s.UpdateTicker = updateTicker
-}
-
 // add adds a channel, action, and Block to the SelectCases object.
 func (s *SelectCases) add(c interface{}, a SelectAction, b *Block) {
 	selectCase := reflect.SelectCase{
@@ -215,27 +186,16 @@ func (s *SelectCases) addChanSelectCase(c interface{}, a SelectAction) {
 // The channel used is a time.Ticker channel set to tick according to the
 // block's configuration. The SelectAction function updates the block's status
 // but does not tell Goblocks to refresh.
-func addBlockToSelectCase(s *SelectCases, b *Block) {
+func addBlockToSelectCase(s *SelectCases, b *Block, c <-chan time.Time) {
 	updateFunc := b.Update
 	s.add(
-		b.Ticker.C,
+		c,
 		func(b *Block) (bool, bool, bool) {
 			updateFunc(&b.I3barBlock, b.Config)
 			return false, false, false
 		},
 		b,
 	)
-}
-
-// Reset stops all tickers and resets all signal handlers.
-func (s *SelectCases) Reset() {
-	for _, block := range s.Blocks {
-		if block != nil {
-			block.Ticker.Stop()
-		}
-	}
-	s.UpdateTicker.Stop()
-	signal.Reset()
 }
 
 // SelectAction is a function type that specifies an action to perform when a
@@ -287,9 +247,9 @@ func NewGoblocks() (*Goblocks, error) {
 		return nil, err
 	}
 
-	gb.SelectCases.AddBlockSelectCases(blocks)
 	gb.SelectCases.AddSignalSelectCases(blocks)
-	gb.SelectCases.AddUpdateTickerSelectCase(gb.Cfg.Global.RefreshInterval)
+	gb.AddBlockSelectCases(blocks)
+	gb.AddUpdateTickerSelectCase()
 
 	for _, block := range blocks {
 		gb.StatusLine = append(gb.StatusLine, &block.I3barBlock)
@@ -298,4 +258,39 @@ func NewGoblocks() (*Goblocks, error) {
 	}
 
 	return &gb, nil
+}
+
+// AddBlockSelectCases is a helper function to add all configured Block
+// objects to Goblocks' SelectCases.
+func (gb *Goblocks) AddBlockSelectCases(b []*Block) {
+	for _, block := range b {
+		ticker := time.NewTicker(
+			time.Duration(
+				block.Config.GetUpdateInterval() * float64(time.Second),
+			),
+		)
+		gb.Tickers = append(gb.Tickers, ticker)
+		addBlockToSelectCase(&gb.SelectCases, block, ticker.C)
+	}
+}
+
+// AddUpdateTickerSelectCase adds the Goblocks update ticker that controls
+// refreshing the Goblocks output.
+func (gb *Goblocks) AddUpdateTickerSelectCase() {
+	updateTicker := time.NewTicker(
+		time.Duration(gb.Cfg.Global.RefreshInterval * float64(time.Second)),
+	)
+	gb.SelectCases.addChanSelectCase(
+		updateTicker.C,
+		SelectActionRefresh,
+	)
+	gb.Tickers = append(gb.Tickers, updateTicker)
+}
+
+// Reset stops all tickers and resets all signal handlers.
+func (gb *Goblocks) Reset() {
+	for _, ticker := range gb.Tickers {
+		ticker.Stop()
+	}
+	signal.Reset()
 }

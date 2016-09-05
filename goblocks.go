@@ -43,7 +43,7 @@ func main() {
 				break
 			}
 		} else if reload {
-			gb.SelectCases.Reset()
+			gb.Reset()
 			gb, err = modules.NewGoblocks()
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%s", err)
