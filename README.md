@@ -16,6 +16,7 @@ The main goal of this project is to match most of the features of [i3blocks](htt
     * volume (ALSA only)
     * date/time
 * Configuration in [YAML](http://yaml.org/) format (see [config/goblocks.yml](config/goblocks.yml)).
+* Ability to configure separate refresh intervals for each individual block.
 * Ability to configure UNIX signal handlers to refresh individual blocks.
 * Ability to reload the configuration by sending the HUP signal (e.g. `pkill -HUP goblocks`).
 * Debug option to [pretty-print](https://en.wikipedia.org/wiki/Prettyprint) Goblocks' JSON output.
