@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-// Batter represents the configuration for the battery block.
+// Battery represents the configuration for the battery block.
 type Battery struct {
 	BlockIndex     int     `yaml:"block_index"`
 	UpdateInterval float64 `yaml:"update_interval"`
