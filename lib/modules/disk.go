@@ -11,6 +11,7 @@ type Disk struct {
 	BlockIndex     int                `yaml:"block_index"`
 	UpdateInterval float64            `yaml:"update_interval"`
 	Label          string             `yaml:"label"`
+	Color          string             `yaml:"color"`
 	UpdateSignal   int                `yaml:"update_signal"`
 	Filesystems    map[string]float64 `yaml:"filesystems"`
 }
@@ -40,6 +41,7 @@ func (c Disk) GetUpdateSignal() int {
 // The block displays "ok" unless one of the given filesystems are over 95%.
 func updateDiskBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Disk)
+	b.Color = cfg.Color
 	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
 	for fsPath, critPercent := range cfg.Filesystems {
 		stats := syscall.Statfs_t{}

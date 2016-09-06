@@ -11,6 +11,7 @@ type Memory struct {
 	BlockIndex     int     `yaml:"block_index"`
 	UpdateInterval float64 `yaml:"update_interval"`
 	Label          string  `yaml:"label"`
+	Color          string  `yaml:"color"`
 	UpdateSignal   int     `yaml:"update_signal"`
 	CritMem        float64 `yaml:"crit_mem"`
 }
@@ -40,6 +41,7 @@ func (c Memory) GetUpdateSignal() int {
 // The value dispayed is the amount of available memory.
 func updateMemBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Memory)
+	b.Color = cfg.Color
 	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
 	var memAvail, memJunk int64
 	r, err := os.Open("/proc/meminfo")

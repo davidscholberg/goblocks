@@ -12,6 +12,7 @@ type Volume struct {
 	BlockIndex     int     `yaml:"block_index"`
 	UpdateInterval float64 `yaml:"update_interval"`
 	Label          string  `yaml:"label"`
+	Color          string  `yaml:"color"`
 	UpdateSignal   int     `yaml:"update_signal"`
 }
 
@@ -40,6 +41,7 @@ func (c Volume) GetUpdateSignal() int {
 // Currently, only the ALSA master channel volume is supported.
 func updateVolumeBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Volume)
+	b.Color = cfg.Color
 	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
 	amixerCmd := "amixer"
 	amixerArgs := []string{"-D", "default", "get", "Master"}

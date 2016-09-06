@@ -12,6 +12,7 @@ type Wifi struct {
 	BlockIndex     int     `yaml:"block_index"`
 	UpdateInterval float64 `yaml:"update_interval"`
 	Label          string  `yaml:"label"`
+	Color          string  `yaml:"color"`
 	UpdateSignal   int     `yaml:"update_signal"`
 	IfaceName      string  `yaml:"interface_name"`
 	CritQuality    float64 `yaml:"crit_quality"`
@@ -41,6 +42,7 @@ func (c Wifi) GetUpdateSignal() int {
 // updateWifiBlock updates the wifi block's status.
 func updateWifiBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Wifi)
+	b.Color = cfg.Color
 	fullTextFmt := fmt.Sprintf("%s%%d%%%%", cfg.Label)
 	var wifiSignal float64
 	var ignore string

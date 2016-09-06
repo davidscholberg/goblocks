@@ -12,6 +12,7 @@ type Raid struct {
 	BlockIndex     int     `yaml:"block_index"`
 	UpdateInterval float64 `yaml:"update_interval"`
 	Label          string  `yaml:"label"`
+	Color          string  `yaml:"color"`
 	UpdateSignal   int     `yaml:"update_signal"`
 }
 
@@ -41,6 +42,7 @@ func (c Raid) GetUpdateSignal() int {
 // system is degraded.
 func updateRaidBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Raid)
+	b.Color = cfg.Color
 	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
 	mdstatPath := "/proc/mdstat"
 	stats, err := ioutil.ReadFile(mdstatPath)

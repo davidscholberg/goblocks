@@ -11,6 +11,7 @@ type Load struct {
 	BlockIndex     int     `yaml:"block_index"`
 	UpdateInterval float64 `yaml:"update_interval"`
 	Label          string  `yaml:"label"`
+	Color          string  `yaml:"color"`
 	UpdateSignal   int     `yaml:"update_signal"`
 	CritLoad       float64 `yaml:"crit_load"`
 }
@@ -39,6 +40,7 @@ func (c Load) GetUpdateSignal() int {
 // updateLoadBlock updates the load block status.
 func updateLoadBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Load)
+	b.Color = cfg.Color
 	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
 	var load float64
 	r, err := os.Open("/proc/loadavg")

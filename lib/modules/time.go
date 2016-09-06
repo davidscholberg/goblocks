@@ -11,6 +11,7 @@ type Time struct {
 	BlockIndex     int     `yaml:"block_index"`
 	UpdateInterval float64 `yaml:"update_interval"`
 	Label          string  `yaml:"label"`
+	Color          string  `yaml:"color"`
 	UpdateSignal   int     `yaml:"update_signal"`
 	TimeFormat     string  `yaml:"time_format"`
 }
@@ -39,6 +40,7 @@ func (c Time) GetUpdateSignal() int {
 // updateTimeBlock updates the time display block.
 func updateTimeBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Time)
+	b.Color = cfg.Color
 	b.FullText = fmt.Sprintf(
 		"%s%s",
 		cfg.Label,

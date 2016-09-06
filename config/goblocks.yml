@@ -26,9 +26,6 @@ global:
 # Each block may optionally have a label field indicating a prefix string to
 # prepend to the block's status text.
 
-# Some block types can have multiple instances, which are specified in a YAML
-# array. See the temperatures and interfaces block configs.
-
 # If a block has an update_signal field, then that block will be updated and
 # Goblocks refreshed when Goblocks receives an RTMIN signal offset by the given
 # signal number. See the volume block config.
@@ -36,12 +33,19 @@ global:
 # will cause Goblocks to update the block and refresh.
 # The update_signal value must be 1 or greater.
 
+# Blocks may optionally have a color field that specifies the default color of
+# the block text, using the 6 digit hex RGB format (e.g. #00ff00 for green).
+
+# Some block types can have multiple instances, which are specified in a YAML
+# array. See the temperatures and interfaces block configs.
+
 blocks:
     # Only linux mdraid is supported.
     raid:
         block_index: 1
         update_interval: 1
         label: "R: "
+        color: "#00ff00"
 
     # The disk block is an aggregate status of overall filesystem usage.
     disk:

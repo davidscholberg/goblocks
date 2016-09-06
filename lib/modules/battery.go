@@ -11,6 +11,7 @@ type Battery struct {
 	BlockIndex     int     `yaml:"block_index"`
 	UpdateInterval float64 `yaml:"update_interval"`
 	Label          string  `yaml:"label"`
+	Color          string  `yaml:"color"`
 	UpdateSignal   int     `yaml:"update_signal"`
 	BatteryNumber  int     `yaml:"battery_number"`
 	CritBattery    float64 `yaml:"crit_battery"`
@@ -40,6 +41,7 @@ func (c Battery) GetUpdateSignal() int {
 // updateBatteryBlock updates the battery status block.
 func updateBatteryBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Battery)
+	b.Color = cfg.Color
 	fullTextFmt := fmt.Sprintf("%s%%d%%%%", cfg.Label)
 	var capacity int
 	sysFilePath := fmt.Sprintf("/sys/class/power_supply/BAT%d/capacity", cfg.BatteryNumber)

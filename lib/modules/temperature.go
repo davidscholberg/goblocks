@@ -13,6 +13,7 @@ type Temperature struct {
 	BlockIndex     int     `yaml:"block_index"`
 	UpdateInterval float64 `yaml:"update_interval"`
 	Label          string  `yaml:"label"`
+	Color          string  `yaml:"color"`
 	UpdateSignal   int     `yaml:"update_signal"`
 	CpuTempPath    string  `yaml:"cpu_temp_path"`
 	CritTemp       float64 `yaml:"crit_temp"`
@@ -43,6 +44,7 @@ func (c Temperature) GetUpdateSignal() int {
 // The value output by the block is the average temperature of all cores.
 func updateTempBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Temperature)
+	b.Color = cfg.Color
 	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
 	totalTemp := 0
 	procs := 0

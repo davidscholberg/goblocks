@@ -11,6 +11,7 @@ type Interface struct {
 	BlockIndex     int     `yaml:"block_index"`
 	UpdateInterval float64 `yaml:"update_interval"`
 	Label          string  `yaml:"label"`
+	Color          string  `yaml:"color"`
 	UpdateSignal   int     `yaml:"update_signal"`
 	IfaceName      string  `yaml:"interface_name"`
 }
@@ -39,6 +40,7 @@ func (c Interface) GetUpdateSignal() int {
 // updateIfaceBlock updates the network interface block.
 func updateIfaceBlock(b *i3barjson.Block, c BlockConfig) {
 	cfg := c.(Interface)
+	b.Color = cfg.Color
 	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
 	var statusStr string
 	sysFilePath := fmt.Sprintf("/sys/class/net/%s/operstate", cfg.IfaceName)

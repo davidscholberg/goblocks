@@ -18,6 +18,7 @@ The main goal of this project is to match most of the features of [i3blocks](htt
     * volume (ALSA only)
     * date/time
 * Configuration in [YAML](http://yaml.org/) format (see [config/goblocks.yml](config/goblocks.yml)).
+* Color support.
 * Ability to configure separate refresh intervals for each individual block.
 * Ability to configure UNIX signal handlers to refresh individual blocks.
 * Ability to reload the configuration by sending the HUP signal (e.g. `pkill -HUP goblocks`).
@@ -58,4 +59,3 @@ If you would like to see a new feature or enhancement in Goblocks, please feel f
 ### TODO
 
 * Add cli arg support.
-* Add color support.
