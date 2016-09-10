@@ -66,6 +66,7 @@ func updateTempBlock(b *i3barjson.Block, c BlockConfig) {
 			b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
 			return
 		}
+		defer r.Close()
 		var temp int
 		_, err = fmt.Fscanf(r, "%d", &temp)
 		if err != nil {
@@ -73,7 +74,6 @@ func updateTempBlock(b *i3barjson.Block, c BlockConfig) {
 			b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
 			return
 		}
-		r.Close()
 		totalTemp += temp
 		procs++
 	}

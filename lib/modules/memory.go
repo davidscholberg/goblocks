@@ -50,6 +50,7 @@ func updateMemBlock(b *i3barjson.Block, c BlockConfig) {
 		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
 		return
 	}
+	defer r.Close()
 	_, err = fmt.Fscanf(
 		r,
 		"MemTotal: %d kB\nMemFree: %d kB\nMemAvailable: %d ",
@@ -59,7 +60,6 @@ func updateMemBlock(b *i3barjson.Block, c BlockConfig) {
 		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
 		return
 	}
-	r.Close()
 	memAvailG := float64(memAvail) / 1048576.0
 	if memAvailG < cfg.CritMem {
 		b.Urgent = true

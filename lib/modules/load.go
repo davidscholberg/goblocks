@@ -49,13 +49,13 @@ func updateLoadBlock(b *i3barjson.Block, c BlockConfig) {
 		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
 		return
 	}
+	defer r.Close()
 	_, err = fmt.Fscanf(r, "%f ", &load)
 	if err != nil {
 		b.Urgent = true
 		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
 		return
 	}
-	r.Close()
 	if load >= cfg.CritLoad {
 		b.Urgent = true
 	} else {

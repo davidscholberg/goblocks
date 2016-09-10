@@ -50,13 +50,13 @@ func updateIfaceBlock(b *i3barjson.Block, c BlockConfig) {
 		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
 		return
 	}
+	defer r.Close()
 	_, err = fmt.Fscanf(r, "%s", &statusStr)
 	if err != nil {
 		b.Urgent = true
 		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
 		return
 	}
-	r.Close()
 	if statusStr == "up" {
 		b.Urgent = false
 	} else {
