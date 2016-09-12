@@ -1,0 +1,56 @@
+global:
+    debug: False
+    refresh_interval: 1
+
+blocks:
+    raid:
+        block_index: 1
+        label: "R: "
+        color: "#71b58e"
+        update_interval: 1
+
+    disk:
+        block_index: 2
+        label: "D: "
+        update_interval: 1
+        filesystems:
+            /: 90
+            /home: 90
+
+    load:
+        block_index: 3
+        label: "L: "
+        color: "#71b58e"
+        update_interval: 1
+        crit_load: 4
+
+    memory:
+        block_index: 4
+        label: "M: "
+        update_interval: 1
+        crit_mem: 1
+
+    temperatures:
+        - block_index: 5
+          color: "#71b58e"
+          update_interval: 1
+          cpu_temp_path: /sys/devices/platform/coretemp.0/hwmon/hwmon1
+          crit_temp: 50
+
+    interfaces:
+        - block_index: 6
+          label: "E: "
+          update_interval: 1
+          interface_name: enp3s0
+
+    volume:
+        block_index: 7
+        label: "V: "
+        color: "#71b58e"
+        update_interval: 60
+        update_signal: 8
+
+    time:
+        block_index: 8
+        update_interval: 0.25
+        time_format: 2006-01-02 15:04:05

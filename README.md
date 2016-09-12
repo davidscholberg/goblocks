@@ -17,7 +17,7 @@ The main goal of this project is to match most of the features of [i3blocks](htt
     * battery level
     * volume (ALSA only)
     * date/time
-* Configuration in [YAML](http://yaml.org/) format (see [config/goblocks.yml](config/goblocks.yml)).
+* Configuration in [YAML](http://yaml.org/) format (see [config/goblocks-full.yml](config/goblocks-full.yml)).
 * Color support.
 * Ability to configure separate refresh intervals for each individual block.
 * Ability to configure UNIX signal handlers to refresh individual blocks.
@@ -33,12 +33,20 @@ Install Goblocks and the sample config file:
 ```bash
 go get github.com/davidscholberg/goblocks
 mkdir -p $HOME/.config/goblocks
-cp $GOPATH/src/github.com/davidscholberg/goblocks/config/goblocks.yml $HOME/.config/goblocks/
+cp $GOPATH/src/github.com/davidscholberg/goblocks/config/goblocks-full.yml $HOME/.config/goblocks/goblocks.yml
 ```
 
 ### Configure
 
-Goblocks configuration is specified in [YAML](http://yaml.org/). The configuration file path is `$HOME/.config/goblocks/goblocks.yml`. A full configuration example with all available block types and options can be found at [config/goblocks.yml](config/goblocks.yml).
+Goblocks configuration is specified in [YAML](http://yaml.org/). The configuration file path is `$HOME/.config/goblocks/goblocks.yml`. A full configuration example with all available block types and options can be found at [config/goblocks-full.yml](config/goblocks-full.yml).
+
+Below is an example of what the comfiguration at [config/goblocks-screenshot.yml](config/goblocks-screenshot.yml) might look like:
+
+![screenshot-normal](config/screenshots/goblocks-normal.png)
+
+This is an example of what a block that's gone critical might look like:
+
+![screenshot-alert](config/screenshots/goblocks-alert.png)
 
 ### Run
 
@@ -50,7 +58,7 @@ You can reload Goblocks' configuration without restarting i3 by sending the `HUP
 pkill -HUP goblocks
 ```
 
-You can debug Goblocks' output by running it on the command line. If you set the `debug` [config option](config/goblocks.yml) to true, then Goblocks will [pretty-print](https://en.wikipedia.org/wiki/Prettyprint) the JSON output, making it easier to read.
+You can debug Goblocks' output by running it on the command line. If you set the `debug` [config option](config/goblocks-full.yml) to true, then Goblocks will [pretty-print](https://en.wikipedia.org/wiki/Prettyprint) the JSON output, making it easier to read.
 
 ### Contributing
 
