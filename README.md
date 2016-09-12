@@ -24,6 +24,14 @@ The main goal of this project is to match most of the features of [i3blocks](htt
 * Ability to reload the configuration by sending the HUP signal (e.g. `pkill -HUP goblocks`).
 * Debug option to [pretty-print](https://en.wikipedia.org/wiki/Prettyprint) Goblocks' JSON output.
 
+Below is an example of what the configuration at [config/goblocks-screenshot.yml](config/goblocks-screenshot.yml) might look like:
+
+![screenshot-normal](config/screenshots/goblocks-normal.png)
+
+This is an example of what a block that's gone critical might look like:
+
+![screenshot-alert](config/screenshots/goblocks-alert.png)
+
 ### Install
 
 Gobocks requires Go version 1.7+.
@@ -39,14 +47,6 @@ cp $GOPATH/src/github.com/davidscholberg/goblocks/config/goblocks-full.yml $HOME
 ### Configure
 
 Goblocks configuration is specified in [YAML](http://yaml.org/). The configuration file path is `$HOME/.config/goblocks/goblocks.yml`. A full configuration example with all available block types and options can be found at [config/goblocks-full.yml](config/goblocks-full.yml).
-
-Below is an example of what the configuration at [config/goblocks-screenshot.yml](config/goblocks-screenshot.yml) might look like:
-
-![screenshot-normal](config/screenshots/goblocks-normal.png)
-
-This is an example of what a block that's gone critical might look like:
-
-![screenshot-alert](config/screenshots/goblocks-alert.png)
 
 ### Run
 
