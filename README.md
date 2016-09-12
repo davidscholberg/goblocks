@@ -40,7 +40,7 @@ cp $GOPATH/src/github.com/davidscholberg/goblocks/config/goblocks-full.yml $HOME
 
 Goblocks configuration is specified in [YAML](http://yaml.org/). The configuration file path is `$HOME/.config/goblocks/goblocks.yml`. A full configuration example with all available block types and options can be found at [config/goblocks-full.yml](config/goblocks-full.yml).
 
-Below is an example of what the comfiguration at [config/goblocks-screenshot.yml](config/goblocks-screenshot.yml) might look like:
+Below is an example of what the configuration at [config/goblocks-screenshot.yml](config/goblocks-screenshot.yml) might look like:
 
 ![screenshot-normal](config/screenshots/goblocks-normal.png)
 
