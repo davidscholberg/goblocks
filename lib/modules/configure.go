@@ -17,7 +17,6 @@ import (
 type Block struct {
 	I3barBlock i3barjson.Block
 	Config     BlockConfig
-	Update     func(b *i3barjson.Block, c BlockConfig)
 }
 
 // Config is the root configuration struct.
@@ -35,9 +34,39 @@ type GlobalConfig struct {
 // BlockConfig is an interface for Block configuration structs.
 type BlockConfig interface {
 	GetBlockIndex() int
-	GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig)
 	GetUpdateInterval() float64
 	GetUpdateSignal() int
+	UpdateBlock(b *i3barjson.Block)
+}
+
+// BlockConfigBase is a base struct for Block configuration structs. It
+// implements all of the methods of the BlockConfig interface except the
+// UpdateBlock method. That method should be implemented by each Block
+// configuration struct, which should also embed the BlockConfigBase struct as
+// an anonymous field. That way, each Block configuration struct will implement
+// the full BlockConfig interface.
+type BlockConfigBase struct {
+	BlockIndex     int     `yaml:"block_index"`
+	UpdateInterval float64 `yaml:"update_interval"`
+	Label          string  `yaml:"label"`
+	Color          string  `yaml:"color"`
+	UpdateSignal   int     `yaml:"update_signal"`
+}
+
+// GetBlockIndex returns the block's position.
+func (c BlockConfigBase) GetBlockIndex() int {
+	return c.BlockIndex
+}
+
+// GetUpdateInterval returns the block's update interval in seconds.
+func (c BlockConfigBase) GetUpdateInterval() float64 {
+	return c.UpdateInterval
+}
+
+// GetUpdateSignal returns the block's update signal that forces an update and
+// refresh.
+func (c BlockConfigBase) GetUpdateSignal() int {
+	return c.UpdateSignal
 }
 
 // BlockConfigs holds the configuration of all status blocks. Each field must be
@@ -105,11 +134,9 @@ func GetBlocks(c BlockConfigs) ([]*Block, error) {
 	blocks := make([]*Block, len(blockConfigSlice))
 	for _, blockConfig := range blockConfigSlice {
 		blockIndex := blockConfig.GetBlockIndex()
-		updateFunc := blockConfig.GetUpdateFunc()
 		blocks[blockIndex-1] = &Block{
 			i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
 			blockConfig,
-			updateFunc,
 		}
 	}
 
@@ -148,11 +175,10 @@ func (s *SelectCases) AddSignalSelectCases(blocks []*Block) {
 		if updateSignal > 0 {
 			sigUpdateChan := make(chan os.Signal, 1)
 			signal.Notify(sigUpdateChan, sigrtmin+syscall.Signal(updateSignal))
-			updateFunc := block.Update
 			s.add(
 				sigUpdateChan,
 				func(b *Block) SelectReturn {
-					updateFunc(&b.I3barBlock, b.Config)
+					b.Config.UpdateBlock(&b.I3barBlock)
 					return SelectActionRefresh(b)
 				},
 				block,
@@ -189,11 +215,10 @@ func (s *SelectCases) addChanSelectCase(c interface{}, a SelectAction) {
 // block's configuration. The SelectAction function updates the block's status
 // but does not tell Goblocks to refresh.
 func addBlockToSelectCase(s *SelectCases, b *Block, c <-chan time.Time) {
-	updateFunc := b.Update
 	s.add(
 		c,
 		func(b *Block) SelectReturn {
-			updateFunc(&b.I3barBlock, b.Config)
+			b.Config.UpdateBlock(&b.I3barBlock)
 			return SelectActionNoop(b)
 		},
 		b,
@@ -267,7 +292,7 @@ func NewGoblocks() (*Goblocks, error) {
 	for _, block := range blocks {
 		gb.StatusLine = append(gb.StatusLine, &block.I3barBlock)
 		// update block so it's ready for first run
-		block.Update(&block.I3barBlock, block.Config)
+		block.Config.UpdateBlock(&block.I3barBlock)
 	}
 
 	return &gb, nil

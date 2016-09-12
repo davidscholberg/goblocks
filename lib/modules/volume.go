@@ -9,40 +9,14 @@ import (
 
 // Volume represents the configuration for the volume display block.
 type Volume struct {
-	BlockIndex     int     `yaml:"block_index"`
-	UpdateInterval float64 `yaml:"update_interval"`
-	Label          string  `yaml:"label"`
-	Color          string  `yaml:"color"`
-	UpdateSignal   int     `yaml:"update_signal"`
+	BlockConfigBase `yaml:",inline"`
 }
 
-// GetBlockIndex returns the block's position.
-func (c Volume) GetBlockIndex() int {
-	return c.BlockIndex
-}
-
-// GetUpdateFunc returns the block's status update function.
-func (c Volume) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
-	return updateVolumeBlock
-}
-
-// GetUpdateInterval returns the block's update interval in seconds.
-func (c Volume) GetUpdateInterval() float64 {
-	return c.UpdateInterval
-}
-
-// GetUpdateSignal returns the block's update signal that forces an update and
-// refresh.
-func (c Volume) GetUpdateSignal() int {
-	return c.UpdateSignal
-}
-
-// updateVolumeBlock updates the volume display block.
+// UpdateBlock updates the volume display block.
 // Currently, only the ALSA master channel volume is supported.
-func updateVolumeBlock(b *i3barjson.Block, c BlockConfig) {
-	cfg := c.(Volume)
-	b.Color = cfg.Color
-	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
+func (c Volume) UpdateBlock(b *i3barjson.Block) {
+	b.Color = c.Color
+	fullTextFmt := fmt.Sprintf("%s%%s", c.Label)
 	amixerCmd := "amixer"
 	amixerArgs := []string{"-D", "default", "get", "Master"}
 	out, err := exec.Command(amixerCmd, amixerArgs...).Output()

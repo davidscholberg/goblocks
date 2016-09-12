@@ -8,42 +8,16 @@ import (
 
 // Interface represents the configuration for the network interface block.
 type Interface struct {
-	BlockIndex     int     `yaml:"block_index"`
-	UpdateInterval float64 `yaml:"update_interval"`
-	Label          string  `yaml:"label"`
-	Color          string  `yaml:"color"`
-	UpdateSignal   int     `yaml:"update_signal"`
-	IfaceName      string  `yaml:"interface_name"`
+	BlockConfigBase `yaml:",inline"`
+	IfaceName       string `yaml:"interface_name"`
 }
 
-// GetBlockIndex returns the block's position.
-func (c Interface) GetBlockIndex() int {
-	return c.BlockIndex
-}
-
-// GetUpdateFunc returns the block's status update function.
-func (c Interface) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
-	return updateIfaceBlock
-}
-
-// GetUpdateInterval returns the block's update interval in seconds.
-func (c Interface) GetUpdateInterval() float64 {
-	return c.UpdateInterval
-}
-
-// GetUpdateSignal returns the block's update signal that forces an update and
-// refresh.
-func (c Interface) GetUpdateSignal() int {
-	return c.UpdateSignal
-}
-
-// updateIfaceBlock updates the network interface block.
-func updateIfaceBlock(b *i3barjson.Block, c BlockConfig) {
-	cfg := c.(Interface)
-	b.Color = cfg.Color
-	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
+// UpdateBlock updates the network interface block.
+func (c Interface) UpdateBlock(b *i3barjson.Block) {
+	b.Color = c.Color
+	fullTextFmt := fmt.Sprintf("%s%%s", c.Label)
 	var statusStr string
-	sysFilePath := fmt.Sprintf("/sys/class/net/%s/operstate", cfg.IfaceName)
+	sysFilePath := fmt.Sprintf("/sys/class/net/%s/operstate", c.IfaceName)
 	r, err := os.Open(sysFilePath)
 	if err != nil {
 		b.Urgent = true

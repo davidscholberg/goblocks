@@ -9,41 +9,15 @@ import (
 
 // Raid represents the configuration for the RAID block.
 type Raid struct {
-	BlockIndex     int     `yaml:"block_index"`
-	UpdateInterval float64 `yaml:"update_interval"`
-	Label          string  `yaml:"label"`
-	Color          string  `yaml:"color"`
-	UpdateSignal   int     `yaml:"update_signal"`
+	BlockConfigBase `yaml:",inline"`
 }
 
-// GetBlockIndex returns the block's position.
-func (c Raid) GetBlockIndex() int {
-	return c.BlockIndex
-}
-
-// GetUpdateFunc returns the block's status update function.
-func (c Raid) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
-	return updateRaidBlock
-}
-
-// GetUpdateInterval returns the block's update interval in seconds.
-func (c Raid) GetUpdateInterval() float64 {
-	return c.UpdateInterval
-}
-
-// GetUpdateSignal returns the block's update signal that forces an update and
-// refresh.
-func (c Raid) GetUpdateSignal() int {
-	return c.UpdateSignal
-}
-
-// updateRaidBlock updates the RAID block's status.
+// UpdateBlock updates the RAID block's status.
 // This block only supports linux mdraid, and alerts if any RAID volume on the
 // system is degraded.
-func updateRaidBlock(b *i3barjson.Block, c BlockConfig) {
-	cfg := c.(Raid)
-	b.Color = cfg.Color
-	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
+func (c Raid) UpdateBlock(b *i3barjson.Block) {
+	b.Color = c.Color
+	fullTextFmt := fmt.Sprintf("%s%%s", c.Label)
 	mdstatPath := "/proc/mdstat"
 	stats, err := ioutil.ReadFile(mdstatPath)
 	if err != nil {

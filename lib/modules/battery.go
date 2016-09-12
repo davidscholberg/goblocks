@@ -8,43 +8,17 @@ import (
 
 // Battery represents the configuration for the battery block.
 type Battery struct {
-	BlockIndex     int     `yaml:"block_index"`
-	UpdateInterval float64 `yaml:"update_interval"`
-	Label          string  `yaml:"label"`
-	Color          string  `yaml:"color"`
-	UpdateSignal   int     `yaml:"update_signal"`
-	BatteryNumber  int     `yaml:"battery_number"`
-	CritBattery    float64 `yaml:"crit_battery"`
+	BlockConfigBase `yaml:",inline"`
+	BatteryNumber   int     `yaml:"battery_number"`
+	CritBattery     float64 `yaml:"crit_battery"`
 }
 
-// GetBlockIndex returns the block's position.
-func (c Battery) GetBlockIndex() int {
-	return c.BlockIndex
-}
-
-// GetUpdateFunc returns the block's status update function.
-func (c Battery) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
-	return updateBatteryBlock
-}
-
-// GetUpdateInterval returns the block's update interval in seconds.
-func (c Battery) GetUpdateInterval() float64 {
-	return c.UpdateInterval
-}
-
-// GetUpdateSignal returns the block's update signal that forces an update and
-// refresh.
-func (c Battery) GetUpdateSignal() int {
-	return c.UpdateSignal
-}
-
-// updateBatteryBlock updates the battery status block.
-func updateBatteryBlock(b *i3barjson.Block, c BlockConfig) {
-	cfg := c.(Battery)
-	b.Color = cfg.Color
-	fullTextFmt := fmt.Sprintf("%s%%d%%%%", cfg.Label)
+// UpdateBlock updates the battery status block.
+func (c Battery) UpdateBlock(b *i3barjson.Block) {
+	b.Color = c.Color
+	fullTextFmt := fmt.Sprintf("%s%%d%%%%", c.Label)
 	var capacity int
-	sysFilePath := fmt.Sprintf("/sys/class/power_supply/BAT%d/capacity", cfg.BatteryNumber)
+	sysFilePath := fmt.Sprintf("/sys/class/power_supply/BAT%d/capacity", c.BatteryNumber)
 	r, err := os.Open(sysFilePath)
 	if err != nil {
 		b.Urgent = true
@@ -58,7 +32,7 @@ func updateBatteryBlock(b *i3barjson.Block, c BlockConfig) {
 		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
 		return
 	}
-	if float64(capacity) >= cfg.CritBattery {
+	if float64(capacity) >= c.CritBattery {
 		b.Urgent = false
 	} else {
 		b.Urgent = true

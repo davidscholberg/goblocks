@@ -8,41 +8,15 @@ import (
 
 // Memory represents the configuration for the memory block.
 type Memory struct {
-	BlockIndex     int     `yaml:"block_index"`
-	UpdateInterval float64 `yaml:"update_interval"`
-	Label          string  `yaml:"label"`
-	Color          string  `yaml:"color"`
-	UpdateSignal   int     `yaml:"update_signal"`
-	CritMem        float64 `yaml:"crit_mem"`
+	BlockConfigBase `yaml:",inline"`
+	CritMem         float64 `yaml:"crit_mem"`
 }
 
-// GetBlockIndex returns the block's position.
-func (c Memory) GetBlockIndex() int {
-	return c.BlockIndex
-}
-
-// GetUpdateFunc returns the block's status update function.
-func (c Memory) GetUpdateFunc() func(b *i3barjson.Block, c BlockConfig) {
-	return updateMemBlock
-}
-
-// GetUpdateInterval returns the block's update interval in seconds.
-func (c Memory) GetUpdateInterval() float64 {
-	return c.UpdateInterval
-}
-
-// GetUpdateSignal returns the block's update signal that forces an update and
-// refresh.
-func (c Memory) GetUpdateSignal() int {
-	return c.UpdateSignal
-}
-
-// updateMemBlock updates the system memory block status.
+// UpdateBlock updates the system memory block status.
 // The value dispayed is the amount of available memory.
-func updateMemBlock(b *i3barjson.Block, c BlockConfig) {
-	cfg := c.(Memory)
-	b.Color = cfg.Color
-	fullTextFmt := fmt.Sprintf("%s%%s", cfg.Label)
+func (c Memory) UpdateBlock(b *i3barjson.Block) {
+	b.Color = c.Color
+	fullTextFmt := fmt.Sprintf("%s%%s", c.Label)
 	var memAvail, memJunk int64
 	r, err := os.Open("/proc/meminfo")
 	if err != nil {
@@ -61,7 +35,7 @@ func updateMemBlock(b *i3barjson.Block, c BlockConfig) {
 		return
 	}
 	memAvailG := float64(memAvail) / 1048576.0
-	if memAvailG < cfg.CritMem {
+	if memAvailG < c.CritMem {
 		b.Urgent = true
 	} else {
 		b.Urgent = false
