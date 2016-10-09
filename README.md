@@ -67,4 +67,3 @@ If you would like to see a new feature or enhancement in Goblocks, please feel f
 ### TODO
 
 * Fix temperature block to search for correct path.
-* Fix block config to use yaml array so that `block_index` is inferred.
