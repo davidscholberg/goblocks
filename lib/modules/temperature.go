@@ -9,6 +9,8 @@ import (
 )
 
 // Temperature represents the configuration for the CPU temperature block.
+// CpuTempPath is the path to the "hwmon" directory of the CPU temperature info.
+// e.g. /sys/devices/platform/coretemp.0/hwmon
 type Temperature struct {
 	BlockConfigBase `yaml:",inline"`
 	CpuTempPath     string  `yaml:"cpu_temp_path"`
@@ -22,8 +24,29 @@ func (c Temperature) UpdateBlock(b *i3barjson.Block) {
 	fullTextFmt := fmt.Sprintf("%s%%s", c.Label)
 	totalTemp := 0
 	procs := 0
-	sysFileNameFmt := fmt.Sprintf("%s/%%s", c.CpuTempPath)
-	sysFiles, err := ioutil.ReadDir(c.CpuTempPath)
+	sysFileDirList, err := ioutil.ReadDir(c.CpuTempPath)
+	if err != nil {
+		b.Urgent = true
+		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
+		return
+	}
+	if len(sysFileDirList) != 1 {
+		b.Urgent = true
+		msg := fmt.Sprintf(
+			"in %s, expected 1 file, got %d",
+			c.CpuTempPath,
+			len(sysFileDirList),
+		)
+		b.FullText = fmt.Sprintf(fullTextFmt, msg)
+		return
+	}
+	sysFileDirPath := fmt.Sprintf(
+		"%s/%s",
+		c.CpuTempPath,
+		sysFileDirList[0].Name(),
+	)
+	sysFileNameFmt := fmt.Sprintf("%s/%%s", sysFileDirPath)
+	sysFiles, err := ioutil.ReadDir(sysFileDirPath)
 	if err != nil {
 		b.Urgent = true
 		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
