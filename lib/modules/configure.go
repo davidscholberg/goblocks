@@ -19,10 +19,18 @@ type Block struct {
 	Config     BlockConfig
 }
 
+// PreConfig is the struct used to initially unmarshal the configuration. Once
+// the configuration has been fully processed, it is stored in the Config
+// struct.
+type PreConfig struct {
+	Global GlobalConfig             `yaml:"global"`
+	Blocks []map[string]interface{} `yaml:"blocks"`
+}
+
 // Config is the root configuration struct.
 type Config struct {
-	Global GlobalConfig `yaml:"global"`
-	Blocks BlockConfigs `yaml:"blocks"`
+	Global GlobalConfig
+	Blocks []BlockConfig
 }
 
 // GlobalConfig represents global config options.
@@ -33,9 +41,9 @@ type GlobalConfig struct {
 
 // BlockConfig is an interface for Block configuration structs.
 type BlockConfig interface {
-	GetBlockIndex() int
 	GetUpdateInterval() float64
 	GetUpdateSignal() int
+	GetBlockType() string
 	UpdateBlock(b *i3barjson.Block)
 }
 
@@ -46,16 +54,11 @@ type BlockConfig interface {
 // an anonymous field. That way, each Block configuration struct will implement
 // the full BlockConfig interface.
 type BlockConfigBase struct {
-	BlockIndex     int     `yaml:"block_index"`
+	Type           string  `yaml:"type"`
 	UpdateInterval float64 `yaml:"update_interval"`
 	Label          string  `yaml:"label"`
 	Color          string  `yaml:"color"`
 	UpdateSignal   int     `yaml:"update_signal"`
-}
-
-// GetBlockIndex returns the block's position.
-func (c BlockConfigBase) GetBlockIndex() int {
-	return c.BlockIndex
 }
 
 // GetUpdateInterval returns the block's update interval in seconds.
@@ -69,20 +72,72 @@ func (c BlockConfigBase) GetUpdateSignal() int {
 	return c.UpdateSignal
 }
 
-// BlockConfigs holds the configuration of all status blocks. Each field must be
-// either a struct implementing the BlockConfig interface or a slice of structs
-// implementing the BlockConfig interface.
-type BlockConfigs struct {
-	Batteries    []Battery     `yaml:"batteries"`
-	Disk         Disk          `yaml:"disk"`
-	Interfaces   []Interface   `yaml:"interfaces"`
-	Load         Load          `yaml:"load"`
-	Memory       Memory        `yaml:"memory"`
-	Raid         Raid          `yaml:"raid"`
-	Temperatures []Temperature `yaml:"temperatures"`
-	Time         Time          `yaml:"time"`
-	Volume       Volume        `yaml:"volume"`
-	Wifi         []Wifi        `yaml:"wifi"`
+// GetBlockType returns the block's type as a string.
+func (c BlockConfigBase) GetBlockType() string {
+	return c.Type
+}
+
+// getBlockConfigInstance returns a BlockConfig object whose underlying type is
+// determined from the passed-in config map.
+func getBlockConfigInstance(m map[string]interface{}) (*BlockConfig, error) {
+	yamlStr, err := yaml.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+	t := m["type"].(string)
+	switch t {
+	case "battery":
+		c := Battery{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := BlockConfig(c)
+		return &b, err
+	case "disk":
+		c := Disk{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := BlockConfig(c)
+		return &b, err
+	case "interface":
+		c := Interface{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := BlockConfig(c)
+		return &b, err
+	case "load":
+		c := Load{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := BlockConfig(c)
+		return &b, err
+	case "memory":
+		c := Memory{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := BlockConfig(c)
+		return &b, err
+	case "raid":
+		c := Raid{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := BlockConfig(c)
+		return &b, err
+	case "temperature":
+		c := Temperature{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := BlockConfig(c)
+		return &b, err
+	case "time":
+		c := Time{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := BlockConfig(c)
+		return &b, err
+	case "volume":
+		c := Volume{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := BlockConfig(c)
+		return &b, err
+	case "wifi":
+		c := Wifi{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := BlockConfig(c)
+		return &b, err
+	}
+	return nil, fmt.Errorf("error: type %s not valid", t)
 }
 
 const confPathFmt = "%s/.config/goblocks/goblocks.yml"
@@ -96,9 +151,20 @@ func GetConfig(cfg *Config) error {
 		return err
 	}
 
-	err = yaml.Unmarshal(confStr, cfg)
+	preCfg := PreConfig{}
+	err = yaml.Unmarshal(confStr, &preCfg)
 	if err != nil {
 		return err
+	}
+
+	cfg.Global = preCfg.Global
+
+	for _, m := range preCfg.Blocks {
+		block, err := getBlockConfigInstance(m)
+		if err != nil {
+			return err
+		}
+		cfg.Blocks = append(cfg.Blocks, *block)
 	}
 
 	return nil
@@ -106,35 +172,10 @@ func GetConfig(cfg *Config) error {
 
 // GetBlocks initializes and returns a Block slice based on the
 // given configuration.
-func GetBlocks(c BlockConfigs) ([]*Block, error) {
-	// TODO: error handling
-	// TODO: include i3barjson.Block config in config structs
-	var blockConfigSlice []BlockConfig
-	cType := reflect.ValueOf(c)
-	for i := 0; i < cType.NumField(); i++ {
-		field := cType.Field(i)
-		switch field.Kind() {
-		case reflect.Struct:
-			b := field.Interface().(BlockConfig)
-			if b.GetBlockIndex() > 0 {
-				blockConfigSlice = append(blockConfigSlice, b)
-			}
-		case reflect.Slice:
-			for i := 0; i < field.Len(); i++ {
-				b := field.Index(i).Interface().(BlockConfig)
-				if b.GetBlockIndex() > 0 {
-					blockConfigSlice = append(blockConfigSlice, b)
-				}
-			}
-		default:
-			return nil, fmt.Errorf("unexpected type: %s\n", field.Type())
-		}
-	}
-
+func GetBlocks(blockConfigSlice []BlockConfig) ([]*Block, error) {
 	blocks := make([]*Block, len(blockConfigSlice))
-	for _, blockConfig := range blockConfigSlice {
-		blockIndex := blockConfig.GetBlockIndex()
-		blocks[blockIndex-1] = &Block{
+	for i, blockConfig := range blockConfigSlice {
+		blocks[i] = &Block{
 			i3barjson.Block{Separator: true, SeparatorBlockWidth: 20},
 			blockConfig,
 		}

@@ -12,10 +12,11 @@ global:
     # Basically, it controls Goblocks' "frame rate".
     refresh_interval: 1
 
-# Below is the per-block configuration.
+# Below is the per-block configuration. The blocks are defined in a YAML array.
 
-# Each block must have a block_index field indicating the block's position.
-# block_index values must start with 1 and be sequential.
+# Each block must have a type field indicating which status indicator to use for
+# that block. Different status indicators can have different configuration
+# fields.
 
 # Each block must have an update_interval field indicating the time interval in
 # seconds between block updates. This is a floating point number, allowing for
@@ -36,84 +37,71 @@ global:
 # Blocks may optionally have a color field that specifies the default color of
 # the block text, using the 6 digit hex RGB format (e.g. #00ff00 for green).
 
-# Some block types can have multiple instances, which are specified in a YAML
-# array. See the temperatures and interfaces block configs.
-
 blocks:
     # Only linux mdraid is supported.
-    raid:
-        block_index: 1
-        update_interval: 1
-        label: "R: "
-        color: "#00ff00"
+    - type: raid
+      update_interval: 1
+      label: "R: "
+      color: "#00ff00"
 
     # The disk block is an aggregate status of overall filesystem usage.
-    disk:
-        block_index: 2
-        update_interval: 1
-        label: "D: "
-        # filesystems is a map of strings to floating point numbers. The strings
-        # are the filesystems you want to check, and the numbers are the
-        # critical usage percentages for those filesystems.
-        filesystems:
-            /: 90
-            /home: 90
+    - type: disk
+      update_interval: 1
+      label: "D: "
+      # filesystems is a map of strings to floating point numbers. The strings
+      # are the filesystems you want to check, and the numbers are the
+      # critical usage percentages for those filesystems.
+      filesystems:
+          /: 90
+          /home: 90
 
-    load:
-        block_index: 3
-        update_interval: 1
-        label: "L: "
-        crit_load: 4
+    - type: load
+      update_interval: 1
+      label: "L: "
+      crit_load: 4
 
     # The memory block displays available memory.
-    memory:
-        block_index: 4
-        update_interval: 1
-        label: "M: "
-        crit_mem: 1
+    - type: memory
+      update_interval: 1
+      label: "M: "
+      crit_mem: 1
 
-    temperatures:
-        - block_index: 5
-          update_interval: 1
-          cpu_temp_path: /sys/devices/platform/coretemp.0/hwmon/hwmon1
-          crit_temp: 50
+    - type: temperature
+      update_interval: 1
+      cpu_temp_path: /sys/devices/platform/coretemp.0/hwmon/hwmon1
+      crit_temp: 50
 
-    interfaces:
-        - block_index: 6
-          update_interval: 1
-          label: "E: "
-          interface_name: enp3s0
+    - type: interface
+      update_interval: 1
+      label: "E: "
+      interface_name: enp3s0
 
-        - block_index: 7
-          update_interval: 1
-          label: "W: "
-          interface_name: wlp4s2
+    - type: interface
+      update_interval: 1
+      label: "W: "
+      interface_name: wlp4s2
 
-    wifi:
-        - block_index: 8
-          update_interval: 1
-          label: "W: "
-          interface_name: wlp3s0
-          crit_quality: 30
+    - type: wifi
+      update_interval: 1
+      label: "W: "
+      interface_name: wlp3s0
+      crit_quality: 30
 
-    batteries:
-        - block_index: 9
-          update_interval: 1
-          label: "B0: "
-          # The battery number can be found in /sys/class/power_supply/
-          battery_number: 0
-          crit_battery: 20
+    - type: battery
+      update_interval: 1
+      label: "B0: "
+      # The battery number can be found in /sys/class/power_supply/
+      battery_number: 0
+      crit_battery: 20
 
     # The volume block currently only supports the ALSA master channel volume.
-    volume:
-        block_index: 10
-        update_interval: 60
-        label: "V: "
-        update_signal: 1
+    - type: volume
+      update_interval: 60
+      label: "V: "
+      update_signal: 1
 
-    time:
-        block_index: 11
-        update_interval: 0.5
-        # The time_format value must be a string in Go's standard time format
-        # (see https://golang.org/pkg/time/#pkg-constants).
-        time_format: 2006-01-02 15:04:05
+    - type: time
+      update_interval: 0.5
+      # The time_format value must be a string in Go's standard time format
+      # (see https://golang.org/pkg/time/#pkg-constants).
+      time_format: 2006-01-02 15:04:05
