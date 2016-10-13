@@ -67,3 +67,7 @@ If you would like to see a new feature or enhancement in Goblocks, please feel f
 ### TODO
 
 * Fix temperature block to search for correct path.
+* Add global option for default update interval.
+* Add key indicator block.
+* Add software update block.
+* Update README with instructions for adding modules.
