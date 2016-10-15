@@ -68,7 +68,9 @@ blocks:
 
     - type: temperature
       update_interval: 1
-      cpu_temp_path: /sys/devices/platform/coretemp.0/hwmon/hwmon1
+      # cpu_temp_path is the path to the "hwmon" directory of the CPU
+      # temperature info.
+      cpu_temp_path: /sys/devices/platform/coretemp.0/hwmon
       crit_temp: 50
 
     - type: interface
