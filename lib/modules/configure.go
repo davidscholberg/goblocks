@@ -35,8 +35,9 @@ type Config struct {
 
 // GlobalConfig represents global config options.
 type GlobalConfig struct {
-	Debug           bool    `yaml:"debug"`
-	RefreshInterval float64 `yaml:"refresh_interval"`
+	Debug                 bool    `yaml:"debug"`
+	RefreshInterval       float64 `yaml:"refresh_interval"`
+	DefaultUpdateInterval float64 `yaml:"default_update_interval"`
 }
 
 // BlockConfig is an interface for Block configuration structs.
@@ -342,10 +343,18 @@ func NewGoblocks() (*Goblocks, error) {
 // AddBlockSelectCases is a helper function to add all configured Block
 // objects to Goblocks' SelectCases.
 func (gb *Goblocks) AddBlockSelectCases(b []*Block) {
+	defaultUpdateInterval := gb.Cfg.Global.DefaultUpdateInterval
+	if defaultUpdateInterval == 0 {
+		defaultUpdateInterval = 1
+	}
 	for _, block := range b {
+		blockUpdateInterval := block.Config.GetUpdateInterval()
+		if blockUpdateInterval == 0 {
+			blockUpdateInterval = defaultUpdateInterval
+		}
 		ticker := time.NewTicker(
 			time.Duration(
-				block.Config.GetUpdateInterval() * float64(time.Second),
+				blockUpdateInterval * float64(time.Second),
 			),
 		)
 		gb.Tickers = append(gb.Tickers, ticker)

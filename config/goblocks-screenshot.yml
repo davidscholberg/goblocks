@@ -1,16 +1,15 @@
 global:
     debug: False
     refresh_interval: 1
+    default_update_interval: 1
 
 blocks:
     - type: raid
       label: "R: "
       color: "#71b58e"
-      update_interval: 1
 
     - type: disk
       label: "D: "
-      update_interval: 1
       filesystems:
           /: 90
           /home: 90
@@ -18,23 +17,19 @@ blocks:
     - type: load
       label: "L: "
       color: "#71b58e"
-      update_interval: 1
       crit_load: 4
 
     - type: memory
       label: "M: "
-      update_interval: 1
       crit_mem: 1
 
     - type: temperature
       color: "#71b58e"
-      update_interval: 1
       cpu_temp_path: /sys/devices/platform/coretemp.0/hwmon
       crit_temp: 50
 
     - type: interface
       label: "E: "
-      update_interval: 1
       interface_name: enp3s0
 
     - type: volume
@@ -44,5 +39,5 @@ blocks:
       update_signal: 8
 
     - type: time
-      update_interval: 0.25
+      update_interval: 0.5
       time_format: 2006-01-02 15:04:05

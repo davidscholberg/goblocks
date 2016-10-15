@@ -11,6 +11,12 @@ global:
     # in seconds between when Goblocks sends an updated status line to i3bar.
     # Basically, it controls Goblocks' "frame rate".
     refresh_interval: 1
+    # default_update_interval is a floating point number indicating the default
+    # time interval that blocks should be updated. Note that block updates are
+    # done independently of Goblocks' refresh rate, so this value should never
+    # be lower than refresh_interval. Each individual block can override this
+    # value using the update_interval field.
+    default_update_interval: 1
 
 # Below is the per-block configuration. The blocks are defined in a YAML array.
 
@@ -18,11 +24,12 @@ global:
 # that block. Different status indicators can have different configuration
 # fields.
 
-# Each block must have an update_interval field indicating the time interval in
-# seconds between block updates. This is a floating point number, allowing for
-# fractions of a second. Note that this interval does not affect the refresh
-# rate of Goblocks' output; it only impactes the timing in which a block's info
-# gets updated.
+# Each block may optionally have an update_interval field indicating the time
+# interval in seconds between block updates. This is a floating point number,
+# allowing for fractions of a second. Note that this interval does not affect
+# the refresh rate of Goblocks' output; it only impacts the timing in which a
+# block's info gets updated. You can set a global default update interval using
+# the default_update_interval option in the global section.
 
 # Each block may optionally have a label field indicating a prefix string to
 # prepend to the block's status text.
@@ -40,13 +47,11 @@ global:
 blocks:
     # Only linux mdraid is supported.
     - type: raid
-      update_interval: 1
       label: "R: "
       color: "#00ff00"
 
     # The disk block is an aggregate status of overall filesystem usage.
     - type: disk
-      update_interval: 1
       label: "D: "
       # filesystems is a map of strings to floating point numbers. The strings
       # are the filesystems you want to check, and the numbers are the
@@ -56,41 +61,34 @@ blocks:
           /home: 90
 
     - type: load
-      update_interval: 1
       label: "L: "
       crit_load: 4
 
     # The memory block displays available memory.
     - type: memory
-      update_interval: 1
       label: "M: "
       crit_mem: 1
 
     - type: temperature
-      update_interval: 1
       # cpu_temp_path is the path to the "hwmon" directory of the CPU
       # temperature info.
       cpu_temp_path: /sys/devices/platform/coretemp.0/hwmon
       crit_temp: 50
 
     - type: interface
-      update_interval: 1
       label: "E: "
       interface_name: enp3s0
 
     - type: interface
-      update_interval: 1
       label: "W: "
       interface_name: wlp4s2
 
     - type: wifi
-      update_interval: 1
       label: "W: "
       interface_name: wlp3s0
       crit_quality: 30
 
     - type: battery
-      update_interval: 1
       label: "B0: "
       # The battery number can be found in /sys/class/power_supply/
       battery_number: 0
