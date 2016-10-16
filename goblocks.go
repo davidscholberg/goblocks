@@ -29,6 +29,8 @@ func main() {
 		errLogger.Fatalln(err)
 	}
 
+	shouldRefresh := false
+
 	for {
 		// select on all chans
 		i, _, _ := reflect.Select(gb.SelectCases.Cases)
@@ -37,11 +39,22 @@ func main() {
 			fmt.Println("")
 			break
 		}
-		if selectReturn.Refresh {
+		if selectReturn.SignalRefresh {
+			shouldRefresh = true
+		} else if selectReturn.Refresh {
+			if shouldRefresh {
+				err = i3barjson.Update(gb.StatusLine)
+				if err != nil {
+					errLogger.Fatalln(err)
+				}
+				shouldRefresh = false
+			}
+		} else if selectReturn.ForceRefresh {
 			err = i3barjson.Update(gb.StatusLine)
 			if err != nil {
 				errLogger.Fatalln(err)
 			}
+			shouldRefresh = false
 		} else if selectReturn.Reload {
 			gb.Reset()
 			gb, err = modules.NewGoblocks()
@@ -52,6 +65,7 @@ func main() {
 			if err != nil {
 				errLogger.Fatalln(err)
 			}
+			shouldRefresh = false
 		}
 	}
 }

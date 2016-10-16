@@ -220,7 +220,7 @@ func (s *SelectCases) AddSignalSelectCases(blocks []*Block) {
 				sigUpdateChan,
 				func(b *Block) SelectReturn {
 					b.Config.UpdateBlock(&b.I3barBlock)
-					return SelectActionRefresh(b)
+					return SelectActionForceRefresh(b)
 				},
 				block,
 			)
@@ -254,13 +254,14 @@ func (s *SelectCases) addChanSelectCase(c interface{}, a SelectAction) {
 // addBlockToSelectCase is a helper function to add a Block to SelectCases.
 // The channel used is a time.Ticker channel set to tick according to the
 // block's configuration. The SelectAction function updates the block's status
-// but does not tell Goblocks to refresh.
+// and tells Goblocks that a refresh should occur at the next refresh interval
+// tick.
 func addBlockToSelectCase(s *SelectCases, b *Block, c <-chan time.Time) {
 	s.add(
 		c,
 		func(b *Block) SelectReturn {
 			b.Config.UpdateBlock(&b.I3barBlock)
-			return SelectActionNoop(b)
+			return SelectActionSignalRefresh(b)
 		},
 		b,
 	)
@@ -274,9 +275,11 @@ type SelectAction func(*Block) SelectReturn
 // SelectReturn is returned by a SelectAction type function and tells the caller
 // a certain action to take.
 type SelectReturn struct {
-	Refresh bool
-	Reload  bool
-	Exit    bool
+	Exit          bool
+	ForceRefresh  bool
+	Refresh       bool
+	Reload        bool
+	SignalRefresh bool
 }
 
 // SelectActionExit is a helper function of type SelectAction that tells
@@ -285,8 +288,19 @@ func SelectActionExit(b *Block) SelectReturn {
 	return SelectReturn{Exit: true}
 }
 
+// SelectActionForceRefresh is a helper function of type SelectAction that tells
+// Goblocks to immediately refresh the output. This differs from
+// SelectActionRefresh in that a refresh is performed regardless of whether
+// SelectActionSignalRefresh has been called.
+func SelectActionForceRefresh(b *Block) SelectReturn {
+	return SelectReturn{ForceRefresh: true}
+}
+
 // SelectActionRefresh is a helper function of type SelectAction that tells
-// Goblocks to refresh the output.
+// Goblocks to refresh the output. Note that the output is only refreshed if
+// SelectActionSignalRefresh was returned at least once since the last refresh
+// interval tick. This prevents needlessly refreshing the output when nothing
+// changed.
 func SelectActionRefresh(b *Block) SelectReturn {
 	return SelectReturn{Refresh: true}
 }
@@ -297,10 +311,12 @@ func SelectActionReload(b *Block) SelectReturn {
 	return SelectReturn{Reload: true}
 }
 
-// SelectActionNoop is a helper function of type SelectAction that tells
-// Goblocks to not perform any SelectReturn actions.
-func SelectActionNoop(b *Block) SelectReturn {
-	return SelectReturn{}
+// SelectActionSignalRefresh is a helper function of type SelectAction that
+// tells Goblocks to signal the refresher that a refresh should be performed.
+// The actual refresh won't be performed until the refresh interval timer fires
+// again.
+func SelectActionSignalRefresh(b *Block) SelectReturn {
+	return SelectReturn{SignalRefresh: true}
 }
 
 // Goblocks contains all configuration and runtime data needed for the
