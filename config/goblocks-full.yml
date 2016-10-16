@@ -9,14 +9,10 @@ global:
     debug: False
     # refresh_interval is a floating point number indicating the time interval
     # in seconds between when Goblocks sends an updated status line to i3bar.
-    # Basically, it controls Goblocks' "frame rate".
+    # Basically, it controls Goblocks' "frame rate". This value defaults to 1.
+    # Note that this value also serves as the default update_interval value for
+    # each block.
     refresh_interval: 1
-    # default_update_interval is a floating point number indicating the default
-    # time interval that blocks should be updated. Note that block updates are
-    # done independently of Goblocks' refresh rate, so this value should never
-    # be lower than refresh_interval. Each individual block can override this
-    # value using the update_interval field.
-    default_update_interval: 1
 
 # Below is the per-block configuration. The blocks are defined in a YAML array.
 
@@ -28,8 +24,8 @@ global:
 # interval in seconds between block updates. This is a floating point number,
 # allowing for fractions of a second. Note that this interval does not affect
 # the refresh rate of Goblocks' output; it only impacts the timing in which a
-# block's info gets updated. You can set a global default update interval using
-# the default_update_interval option in the global section.
+# block's info gets updated. If update_interval is omitted, then the
+# refresh_interval value in the global section is used as the update_interval.
 
 # Each block may optionally have a label field indicating a prefix string to
 # prepend to the block's status text.

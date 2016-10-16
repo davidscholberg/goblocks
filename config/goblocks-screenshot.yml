@@ -1,7 +1,6 @@
 global:
     debug: False
     refresh_interval: 1
-    default_update_interval: 1
 
 blocks:
     - type: raid
