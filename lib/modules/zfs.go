@@ -11,13 +11,14 @@ import (
 type Zfs struct {
   BlockConfigBase `yaml:",inline"`
   PoolName        string `yaml:"zpool_name"`
+  ZpoolBin        string `yaml:"zpool_bin"`
 }
 
 func (c Zfs) UpdateBlock(b *i3barjson.Block) {
   b.Color = c.Color
   fullTextFmt := fmt.Sprintf("%s%s - %%s", c.Label, c.PoolName)
 
-  zpoolCmd := exec.Command("sudo","/sbin/zpool","status", c.PoolName)
+  zpoolCmd := exec.Command("sudo", c.ZpoolBin, "status", c.PoolName)
   out,err := zpoolCmd.StdoutPipe()
 
   if err != nil {
