@@ -136,11 +136,11 @@ func getBlockConfigInstance(m map[string]interface{}) (*BlockConfig, error) {
 		err := yaml.Unmarshal(yamlStr, &c)
 		b := BlockConfig(c)
 		return &b, err
-  case "zfs":
-    c := Zfs{}
-    err := yaml.Unmarshal(yamlStr, &c)
-    b := BlockConfig(c)
-    return &b, err
+	case "zfs":
+		c := Zfs{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := BlockConfig(c)
+		return &b, err
 	}
 	return nil, fmt.Errorf("error: type %s not valid", t)
 }
