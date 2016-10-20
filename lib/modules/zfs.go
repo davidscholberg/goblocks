@@ -1,7 +1,6 @@
 package modules
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
 	"os/exec"
@@ -20,7 +19,7 @@ func (c Zfs) UpdateBlock(b *i3barjson.Block) {
 	fullTextFmt := fmt.Sprintf("%s%%s", c.Label)
 
 	zpoolCmd := exec.Command("sudo", "zpool", "status", c.PoolName)
-	out, err := zpoolCmd.StdoutPipe()
+	out, err := zpoolCmd.Output()
 
 	if err != nil {
 		b.Urgent = true
@@ -28,17 +27,9 @@ func (c Zfs) UpdateBlock(b *i3barjson.Block) {
 		return
 	}
 
-	if err := zpoolCmd.Start(); err != nil {
-		b.Urgent = true
-		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
-		return
-	}
-
-	defer zpoolCmd.Wait()
-
-	buff := bufio.NewScanner(out)
-	for buff.Scan() {
-		line := strings.TrimSpace(buff.Text())
+	zpoolLines := strings.Split(string(out), "\n")
+	for _, zpoolLine := range zpoolLines {
+		line := strings.TrimSpace(zpoolLine)
 		if strings.HasPrefix(line, "state") {
 			split := strings.Split(line, ":")
 			status := strings.TrimSpace(split[1])
