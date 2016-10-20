@@ -18,7 +18,7 @@ type Zfs struct {
 // UpdateBlock updates the ZFS block
 func (c Zfs) UpdateBlock(b *i3barjson.Block) {
 	b.Color = c.Color
-	fullTextFmt := fmt.Sprintf("%s%s - %%s", c.Label, c.PoolName)
+	fullTextFmt := fmt.Sprintf("%s%%s", c.Label)
 
 	zpoolCmd := exec.Command("sudo", c.ZpoolBin, "status", c.PoolName)
 	out, err := zpoolCmd.StdoutPipe()
