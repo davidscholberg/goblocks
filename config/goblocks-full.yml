@@ -41,6 +41,20 @@ global:
 # the block text, using the 6 digit hex RGB format (e.g. #00ff00 for green).
 
 blocks:
+    # The key block shows statuses of various toggled keys (caps lock, num lock,
+    # etc.)
+    - type: key
+      update_interval: 60
+      update_signal: 1
+      # The key field is the key name to search for in the "xset q" output.
+      key: Caps Lock
+      # The key-text field is the text to display in the block.
+      key-text: Caps
+      # on-color and off-color indicate which colors to use when the given key
+      # is on or off, respectively.
+      on-color: "#ff0000"
+      off-color: "#222222"
+
     # Only linux mdraid is supported.
     - type: raid
       label: "R: "

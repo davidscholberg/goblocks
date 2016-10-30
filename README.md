@@ -7,6 +7,7 @@ The main goal of this project is to match most of the features of [i3blocks](htt
 ### Features
 
 * Status indicators for:
+    * XKB toggled keys (caps lock, num lock, etc.)
     * RAID status (mdraid only)
     * filesystem usage
     * system load
@@ -66,6 +67,5 @@ If you would like to see a new feature or enhancement in Goblocks, please feel f
 
 ### TODO
 
-* Add key indicator block.
 * Add software update block.
 * Update README with instructions for adding modules.
