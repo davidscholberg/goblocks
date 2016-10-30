@@ -101,6 +101,11 @@ func getBlockConfigInstance(m map[string]interface{}) (*BlockConfig, error) {
 		err := yaml.Unmarshal(yamlStr, &c)
 		b := BlockConfig(c)
 		return &b, err
+	case "key":
+		c := KeyIndicator{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := BlockConfig(c)
+		return &b, err
 	case "load":
 		c := Load{}
 		err := yaml.Unmarshal(yamlStr, &c)
