@@ -8,6 +8,7 @@ The main goal of this project is to match most of the features of [i3blocks](htt
 
 * Status indicators for:
     * XKB toggled keys (caps lock, num lock, etc.)
+    * ZFS status
     * RAID status (mdraid only)
     * filesystem usage
     * system load

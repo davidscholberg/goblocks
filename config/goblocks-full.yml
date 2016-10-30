@@ -55,6 +55,15 @@ blocks:
       on-color: "#ff0000"
       off-color: "#222222"
 
+    # This block requires a passwordless sudoers entry for the user running
+    # goblocks.
+    # E.g. ALL ALL = (root) NOPASSWD: /sbin/zpool
+    # Also, zpool must be in your $PATH.
+    - type: zfs
+      label: "Z: "
+      zpool_name: "boot"
+      update_interval: 60
+
     # Only linux mdraid is supported.
     - type: raid
       label: "R: "
