@@ -7,6 +7,7 @@ The main goal of this project is to match most of the features of [i3blocks](htt
 ### Features
 
 * Status indicators for:
+    * ZFS status
     * RAID status (mdraid only)
     * filesystem usage
     * system load
