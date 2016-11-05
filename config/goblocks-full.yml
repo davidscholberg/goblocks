@@ -58,7 +58,7 @@ blocks:
     # This block requires a passwordless sudoers entry for the user running
     # goblocks.
     # E.g. ALL ALL = (root) NOPASSWD: /sbin/zpool
-    # Also, zpool must be in your $PATH.
+    # Also, the zpool utility must be installed and in your $PATH.
     - type: zfs
       label: "Z: "
       zpool_name: "boot"
@@ -114,6 +114,7 @@ blocks:
       crit_battery: 20
 
     # The volume block currently only supports the ALSA master channel volume.
+    # The amixer utility must be installed and in your $PATH.
     - type: volume
       update_interval: 60
       label: "V: "

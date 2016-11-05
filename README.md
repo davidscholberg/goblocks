@@ -46,6 +46,15 @@ mkdir -p $HOME/.config/goblocks
 cp $GOPATH/src/github.com/davidscholberg/goblocks/config/goblocks-full.yml $HOME/.config/goblocks/goblocks.yml
 ```
 
+#### Optional dependecies
+
+The following status indicators have additional dependencies:
+
+* volume
+    * requires the `amixer` utility
+* zfs
+    * requires the `zpool` utility
+
 ### Configure
 
 Goblocks configuration is specified in [YAML](http://yaml.org/). The configuration file path is `$HOME/.config/goblocks/goblocks.yml`. A full configuration example with all available block types and options can be found at [config/goblocks-full.yml](config/goblocks-full.yml).
