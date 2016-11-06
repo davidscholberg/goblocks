@@ -38,7 +38,9 @@ This is an example of what a block that's gone critical might look like:
 
 Gobocks requires Go version 1.7+.
 
-Install Goblocks and the sample config file:
+Arch users can install Goblocks using the [Goblocks AUR package](https://aur.archlinux.org/packages/goblocks/).
+
+Goblocks can also be installed manually with the following commands:
 
 ```bash
 go get github.com/davidscholberg/goblocks
