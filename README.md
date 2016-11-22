@@ -18,6 +18,7 @@ The main goal of this project is to have all of the status indicator modules wri
     * wifi signal strength
     * battery level
     * volume (ALSA only)
+    * uptime
     * date/time
 * Configuration in [YAML](http://yaml.org/) format (see [config/goblocks-full.yml](config/goblocks-full.yml)).
 * Color support.
