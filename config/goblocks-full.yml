@@ -120,7 +120,7 @@ blocks:
       label: "V: "
       update_signal: 1
 
-    - type: Uptime
+    - type: uptime
       update_interval: 0.5
       label: "U: "
 
