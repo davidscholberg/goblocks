@@ -2,14 +2,15 @@ package modules
 
 import (
 	"fmt"
-	"github.com/davidscholberg/go-i3barjson"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"os/signal"
 	"reflect"
 	"syscall"
 	"time"
+
+	"github.com/davidscholberg/go-i3barjson"
+	"gopkg.in/yaml.v2"
 )
 
 // Block contains all functions and objects necessary to configure and update
@@ -128,6 +129,11 @@ func getBlockConfigInstance(m map[string]interface{}) (*BlockConfig, error) {
 		return &b, err
 	case "time":
 		c := Time{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := BlockConfig(c)
+		return &b, err
+	case "uptime":
+		c := Uptime{}
 		err := yaml.Unmarshal(yamlStr, &c)
 		b := BlockConfig(c)
 		return &b, err

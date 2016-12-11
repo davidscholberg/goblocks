@@ -120,6 +120,10 @@ blocks:
       label: "V: "
       update_signal: 1
 
+    - type: uptime
+      update_interval: 0.5
+      label: "U: "
+
     - type: time
       update_interval: 0.5
       # The time_format value must be a string in Go's standard time format
