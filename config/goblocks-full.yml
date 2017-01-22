@@ -123,6 +123,9 @@ blocks:
     - type: uptime
       update_interval: 0.5
       label: "U: "
+      # duration_format is a format string whose syntax is defined here:
+      # https://github.com/davidscholberg/go-durationfmt#duration-format
+      duration_format: "%d days, %0h:%0m:%0s"
 
     - type: time
       update_interval: 0.5

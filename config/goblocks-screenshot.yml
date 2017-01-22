@@ -3,6 +3,11 @@ global:
     refresh_interval: 1
 
 blocks:
+    - type: uptime
+      update_interval: 0.5
+      label: "U: "
+      duration_format: "%d days, %0h:%0m:%0s"
+
     - type: raid
       label: "R: "
       color: "#71b58e"
