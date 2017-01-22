@@ -15,7 +15,6 @@ type Interface struct {
 	IPv4CIDR        string
 	IPv6            string
 	IPv6CIDR        string
-	IPv6Local       string
 }
 
 // UpdateBlock updates the network interface block.
@@ -67,7 +66,7 @@ func (c Interface) UpdateBlock(b *i3barjson.Block) {
 				//setting ipv6 link local
 				fullTextFmt = strings.Replace(fullTextFmt, "\u003clocal6\u003e", ip.String(), -1)
 			} else {
-				fullTextFmt = strings.Replace(fullTextFmt, "\u003cipv6\u003e", ip.String()[0:3], -1)
+				fullTextFmt = strings.Replace(fullTextFmt, "\u003cipv6\u003e", ip.String(), -1)
 				fullTextFmt = strings.Replace(fullTextFmt, "\u003ccidr6\u003e", addr.String(), -1)
 			}
 		}
