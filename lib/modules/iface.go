@@ -1,30 +1,46 @@
 package modules
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/davidscholberg/go-i3barjson"
 	"net"
-	"strings"
+	"text/template"
 )
 
 // Interface represents the configuration for the network interface block.
 type Interface struct {
 	BlockConfigBase `yaml:",inline"`
 	IfaceName       string `yaml:"interface_name"`
-	IPv4            string
-	IPv4CIDR        string
-	IPv6            string
-	IPv6CIDR        string
+	IfaceFormat     string `yaml:"interface_format"`
+}
+
+// ifaceInfo contains the status info for the interface being monitored.
+// The field names correspond directly to the template fields in
+// Interface.IfaceFormat.
+type ifaceInfo struct {
+	Status        string
+	Ipv4Addr      string
+	Ipv4Cidr      string
+	Ipv4LocalAddr string
+	Ipv4LocalCidr string
+	Ipv6Addr      string
+	Ipv6Cidr      string
+	Ipv6LocalAddr string
+	Ipv6LocalCidr string
 }
 
 // UpdateBlock updates the network interface block.
 func (c Interface) UpdateBlock(b *i3barjson.Block) {
-	var (
-		status string
-	)
+	var info ifaceInfo
 
 	b.Color = c.Color
 	fullTextFmt := fmt.Sprintf("%s%%s", c.Label)
+
+	// set default interface_format for backwards compat
+	if c.IfaceFormat == "" {
+		c.IfaceFormat = "{{.Status}}"
+	}
 
 	iface, err := net.InterfaceByName(c.IfaceName)
 	if err != nil {
@@ -33,12 +49,12 @@ func (c Interface) UpdateBlock(b *i3barjson.Block) {
 		return
 	}
 
-	if iface.Flags == net.FlagUp {
+	if iface.Flags&net.FlagUp != 0 {
 		b.Urgent = false
-		status = "up"
+		info.Status = "up"
 	} else {
 		b.Urgent = true
-		status = "down"
+		info.Status = "down"
 	}
 
 	addrs, err := iface.Addrs()
@@ -58,30 +74,38 @@ func (c Interface) UpdateBlock(b *i3barjson.Block) {
 
 		// Checking for address family
 		if ip.To4() != nil {
-			fullTextFmt = strings.Replace(fullTextFmt, "\u003cipv4\u003e", ip.String(), -1)
-			fullTextFmt = strings.Replace(fullTextFmt, "\u003ccidr4\u003e", addr.String(), -1)
-		} else {
-
-			if ip.String()[0:4] == "fe80" {
-				//setting ipv6 link local
-				fullTextFmt = strings.Replace(fullTextFmt, "\u003clocal6\u003e", ip.String(), -1)
+			if ip.IsLinkLocalUnicast() {
+				info.Ipv4LocalAddr = ip.String()
+				info.Ipv4LocalCidr = addr.String()
 			} else {
-				fullTextFmt = strings.Replace(fullTextFmt, "\u003cipv6\u003e", ip.String(), -1)
-				fullTextFmt = strings.Replace(fullTextFmt, "\u003ccidr6\u003e", addr.String(), -1)
+				info.Ipv4Addr = ip.String()
+				info.Ipv4Cidr = addr.String()
+			}
+		} else {
+			if ip.IsLinkLocalUnicast() {
+				info.Ipv6LocalAddr = ip.String()
+				info.Ipv6LocalCidr = addr.String()
+			} else {
+				info.Ipv6Addr = ip.String()
+				info.Ipv6Cidr = addr.String()
 			}
 		}
 	}
 
-	// setting up/down flag
-	fullTextFmt = strings.Replace(fullTextFmt, "\u003cstatus\u003e", status, -1)
+	t, err := template.New("iface").Parse(c.IfaceFormat)
+	if err != nil {
+		b.Urgent = true
+		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
+		return
+	}
 
-	// clearing unset fields i.e. because of ipv6 single-stack
-	fullTextFmt = strings.Replace(fullTextFmt, "\u003cipv4\u003e", "", -1)
-	fullTextFmt = strings.Replace(fullTextFmt, "\u003ccidr4\u003e", "", -1)
-	fullTextFmt = strings.Replace(fullTextFmt, "\u003cipv6\u003e", "", -1)
-	fullTextFmt = strings.Replace(fullTextFmt, "\u003ccidr6\u003e", "", -1)
-	fullTextFmt = strings.Replace(fullTextFmt, "\u003clocal6\u003e", "", -1)
+	buf := new(bytes.Buffer)
+	err = t.Execute(buf, info)
+	if err != nil {
+		b.Urgent = true
+		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
+		return
+	}
 
-	// removing the last %s placeholder from final string
-	b.FullText = fmt.Sprintf(fullTextFmt, "")
+	b.FullText = fmt.Sprintf(fullTextFmt, buf.String())
 }
