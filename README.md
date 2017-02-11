@@ -14,7 +14,7 @@ The main goal of this project is to have all of the status indicator modules wri
     * system load
     * memory availability
     * CPU temperature
-    * network interfaces
+    * network interfaces (up/down status, IP addresses)
     * wifi signal strength
     * battery level
     * volume (ALSA only)
