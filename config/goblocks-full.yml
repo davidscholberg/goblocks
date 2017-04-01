@@ -134,8 +134,8 @@ blocks:
       update_interval: 60
       label: "V: "
       update_signal: 1
-    # * mixer_type  - 'default' or 'pulse'
-      mixer_type: default 
+    # * mixer_device  - 'default' or 'pulse'
+      mixer_device: default 
 
     - type: uptime
       update_interval: 0.5

@@ -17,7 +17,7 @@ The main goal of this project is to have all of the status indicator modules wri
     * network interfaces (up/down status, IP addresses)
     * wifi signal strength
     * battery level
-    * volume (ALSA only)
+    * volume (ALSA or default Pulse sink)
     * uptime
     * date/time
 * Configuration in [YAML](http://yaml.org/) format (see [config/goblocks-full.yml](config/goblocks-full.yml)).
