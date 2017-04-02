@@ -41,6 +41,7 @@ blocks:
       color: "#71b58e"
       update_interval: 60
       update_signal: 8
+      mixer_device: default
 
     - type: time
       update_interval: 0.5
