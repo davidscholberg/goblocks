@@ -128,12 +128,18 @@ blocks:
       battery_number: 0
       crit_battery: 20
 
-    # The volume block currently only supports the ALSA master channel volume.
+    # The volume block currently supports Pulse or ALSA channels through amixer.
     # The amixer utility must be installed and in your $PATH.
     - type: volume
       update_interval: 60
       label: "V: "
       update_signal: 1
+      # mixer_device defines the device name to use. If omitted, the default
+      # value is "default". Other possible values include "pulse".
+      mixer_device: default
+      # channel defines the volume channel to monitor. If omitted, the default
+      # value is "Master".
+      channel: Master
 
     - type: uptime
       update_interval: 0.5
