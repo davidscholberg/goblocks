@@ -42,6 +42,7 @@ blocks:
       update_interval: 60
       update_signal: 8
       mixer_device: default
+      channel: Master
 
     - type: time
       update_interval: 0.5

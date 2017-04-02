@@ -11,6 +11,7 @@ import (
 type Volume struct {
 	BlockConfigBase `yaml:",inline"`
 	MixerDevice     string `yaml:"mixer_device"`
+	Channel         string `yaml:"channel"`
 }
 
 // UpdateBlock updates the volume display block.
@@ -22,7 +23,10 @@ func (c Volume) UpdateBlock(b *i3barjson.Block) {
 	if c.MixerDevice == "" {
 		c.MixerDevice = "default"
 	}
-	amixerArgs := []string{"-D", c.MixerDevice, "get", "Master"}
+	if c.Channel == "" {
+		c.Channel = "Master"
+	}
+	amixerArgs := []string{"-D", c.MixerDevice, "get", c.Channel}
 	out, err := exec.Command(amixerCmd, amixerArgs...).Output()
 	if err != nil {
 		b.FullText = fmt.Sprintf(fullTextFmt, err.Error())
