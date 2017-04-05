@@ -147,3 +147,10 @@ blocks:
       # The time_format value must be a string in Go's standard time format
       # (see https://golang.org/pkg/time/#pkg-constants).
       time_format: 2006-01-02 15:04:05
+
+      # Specify a shell command to display output from.
+      # Command flags are supported, complex commands with quotes or pipe
+      # characters should be executed from a script file.
+    - type: command
+      label: "$ "
+      command: 'date -u'
