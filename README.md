@@ -20,6 +20,7 @@ The main goal of this project is to have all of the status indicator modules wri
     * volume (ALSA or Pulse channels through amixer)
     * uptime
     * date/time
+* Ability to show output from arbitrary commands.
 * Configuration in [YAML](http://yaml.org/) format (see [config/goblocks-full.yml](config/goblocks-full.yml)).
 * Color support.
 * Ability to configure separate refresh intervals for each individual block.
@@ -80,5 +81,4 @@ If you would like to see a new feature or enhancement in Goblocks, please feel f
 
 ### TODO
 
-* Add software update block.
 * Update README with instructions for adding modules.

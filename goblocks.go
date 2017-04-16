@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/davidscholberg/go-i3barjson"
-	"github.com/davidscholberg/goblocks/lib/modules"
 	"log"
 	"os"
 	"reflect"
+
+	"github.com/davidscholberg/go-i3barjson"
+	"github.com/davidscholberg/goblocks/lib/modules"
 )
 
 func main() {
