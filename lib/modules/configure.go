@@ -152,8 +152,14 @@ func getBlockConfigInstance(m map[string]interface{}) (*BlockConfig, error) {
 		err := yaml.Unmarshal(yamlStr, &c)
 		b := BlockConfig(c)
 		return &b, err
+	case "command":
+		c := Command{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := BlockConfig(c)
+		return &b, err
 	}
-	return nil, fmt.Errorf("error: type %s not valid", t)
+
+	return nil, fmt.Errorf("type %s not valid", t)
 }
 
 const confPathFmt = "%s/.config/goblocks/goblocks.yml"
