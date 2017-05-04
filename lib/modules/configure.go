@@ -92,6 +92,11 @@ func getBlockConfigInstance(m map[string]interface{}) (*BlockConfig, error) {
 		err := yaml.Unmarshal(yamlStr, &c)
 		b := BlockConfig(c)
 		return &b, err
+	case "cpu":
+		c := &Cpu{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := (BlockConfig)(c)
+		return &b, err
 	case "disk":
 		c := Disk{}
 		err := yaml.Unmarshal(yamlStr, &c)
