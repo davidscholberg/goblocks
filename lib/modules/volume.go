@@ -19,7 +19,7 @@ type Volume struct {
 // Currently, only the ALSA master channel volume is supported.
 func (c Volume) UpdateBlock(b *i3barjson.Block) {
 	b.Color = c.Color
-	fullTextFmt := fmt.Sprintf("%s%%s", c.Label)
+	fullTextFmt := fmt.Sprintf("%s%s", c.Label)
 	amixerCmd := "amixer"
 	if c.MixerDevice == "" {
 		c.MixerDevice = "default"
@@ -45,6 +45,6 @@ func (c Volume) UpdateBlock(b *i3barjson.Block) {
 	if statusSplit[:len(statusSplit)-2] == "on" {
 		b.FullText = fmt.Sprintf(fullTextFmt, outSplit[1][:len(outSplit[1])-2])
 	} else {
-		b.FullText = fmt.Sprintf("%s%s", c.Label, c.MuteIndicator)
+		b.FullText = fmt.Sprintf(fullTextFmt, c.MuteIndicator)
 	}
 }
