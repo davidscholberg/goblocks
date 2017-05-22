@@ -140,6 +140,9 @@ blocks:
       # channel defines the volume channel to monitor. If omitted, the default
       # value is "Master".
       channel: Master
+      # mute_indicator defines what to display when the channel is muted. If
+      # omitted, the default value is "muted".
+      mute_indicator: "muted"
 
     - type: uptime
       update_interval: 0.5
