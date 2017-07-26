@@ -61,7 +61,8 @@ func (c *Cpu) getCpuUsage() (float64, error) {
 
 // parseCpuLine extracts the usage from the text fields of one line of /proc/stat.
 func (c *Cpu) parseCpuLine(flds []string) (float64, error) {
-	if len(flds) < 7 {
+	// CPU lines have 10 fields since kernel version 2.6.33
+	if len(flds) < 10 {
 		return 0, errors.New("invalid line in /proc/stat")
 	}
 	var total, idle uint64
