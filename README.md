@@ -12,6 +12,7 @@ The main goal of this project is to have all of the status indicator modules wri
     * RAID status (mdraid only)
     * filesystem usage
     * system load
+    * CPU usage
     * memory availability
     * CPU temperature
     * network interfaces (up/down status, IP addresses)

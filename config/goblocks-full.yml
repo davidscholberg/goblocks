@@ -83,6 +83,14 @@ blocks:
       label: "L: "
       crit_load: 4
 
+    # The CPU usage in percents.
+    - type: cpu
+      label: "U: "
+      crit_usage: 0.8
+      # By default an aggregated value for all cores is displayed.
+      # Individual core on multi-core machine can be specified. See /proc/stat for possible values.
+      # cpu: cpu0
+
     # The memory block displays available memory.
     - type: memory
       label: "M: "
