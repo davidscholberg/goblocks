@@ -11,6 +11,7 @@ import (
 type Zfs struct {
 	BlockConfigBase `yaml:",inline"`
 	PoolName        string `yaml:"zpool_name"`
+	SkipSudo        bool   `yaml:"skip_sudo"`
 }
 
 // UpdateBlock updates the ZFS block
@@ -18,8 +19,14 @@ func (c Zfs) UpdateBlock(b *i3barjson.Block) {
 	b.Color = c.Color
 	fullTextFmt := fmt.Sprintf("%s%%s", c.Label)
 
-	zpoolCmd := exec.Command("sudo", "zpool", "status", c.PoolName)
-	out, err := zpoolCmd.Output()
+	zpoolArgs := []string{"zpool", "status", c.PoolName}
+
+	if c.SkipSudo == false {
+		zpoolArgs = append([]string{"sudo"}, zpoolArgs...)
+	}
+
+	cmd, zpoolArgs := zpoolArgs[0], zpoolArgs[1:]
+	out, err := exec.Command(cmd, zpoolArgs...).Output()
 
 	if err != nil {
 		b.Urgent = true

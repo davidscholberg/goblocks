@@ -56,13 +56,16 @@ blocks:
       off-color: "#222222"
 
     # This block requires a passwordless sudoers entry for the user running
-    # goblocks.
+    # goblocks for OpenZFS < 0.7.0
     # E.g. ALL ALL = (root) NOPASSWD: /sbin/zpool
+    # If running OpenZFS > 0.7.0, enable skip_sudo to check zpool status
+    # without a sudeoers entry
     # Also, the zpool utility must be installed and in your $PATH.
     - type: zfs
       label: "Z: "
       zpool_name: "boot"
       update_interval: 60
+      skip_sudo: True
 
     # Only linux mdraid is supported.
     - type: raid
