@@ -20,6 +20,7 @@ The main goal of this project is to have all of the status indicator modules wri
     * volume (ALSA or Pulse channels through amixer)
     * uptime
     * date/time
+    * public ip or city
 * Ability to show output from arbitrary commands.
 * Configuration in [YAML](http://yaml.org/) format (see [config/goblocks-full.yml](config/goblocks-full.yml)).
 * Color support.

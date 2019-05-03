@@ -160,3 +160,8 @@ blocks:
     - type: command
       label: "$ "
       command: 'date -u'
+
+    - type: publicip
+      update_interval: 60
+      # The ip_format value must be "city" if you want to see city name instead of ip
+      ip_format: "city"
