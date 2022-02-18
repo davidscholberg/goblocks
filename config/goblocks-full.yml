@@ -160,3 +160,7 @@ blocks:
     - type: command
       label: "$ "
       command: 'date -u'
+
+      # Display current price for currency_pair from coinbase
+    - type: coinbase
+      currency_pair: "BTC-EUR"
