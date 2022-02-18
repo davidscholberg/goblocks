@@ -157,6 +157,11 @@ func getBlockConfigInstance(m map[string]interface{}) (*BlockConfig, error) {
 		err := yaml.Unmarshal(yamlStr, &c)
 		b := BlockConfig(c)
 		return &b, err
+	case "coinbase":
+		c := Coinbase{}
+		err := yaml.Unmarshal(yamlStr, &c)
+		b := BlockConfig(c)
+		return &b, err
 	}
 
 	return nil, fmt.Errorf("type %s not valid", t)
